@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - प्रोफाइल (Profile)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-color: #fff8e7;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FF9933' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="parent-portal.html"
+          id="backBtn"
+          class="hover:bg-white/10 p-1 rounded transition-colors block"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg">तपाईंको प्रोफाइल (Profile)</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <main class="flex-1 max-w-2xl mx-auto w-full p-4 sm:p-6 z-10 relative mt-4">
+      <div
+        class="bg-white rounded-2xl shadow-xl overflow-hidden border-2 border-[#FFD700]/30 relative"
+      >
+        <div class="h-32 bg-gradient-to-r from-[#FF9933] to-[#8B0000] relative">
+          <!-- Cover -->
+        </div>
+
+        <div class="px-6 pb-6 pt-16 relative">
+          <div
+            class="w-24 h-24 bg-white rounded-full absolute -top-12 border-4 border-white shadow-lg flex items-center justify-center text-[#8B0000] text-4xl font-bold"
+            id="avatarLetter"
+          >
+            U
+          </div>
+
+          <h2 class="text-3xl font-bold text-[#8B0000] mb-1" id="profileName">
+            Loading...
+          </h2>
+          <p
+            class="text-sm text-gray-500 font-bold mb-6 px-3 py-1 bg-gray-100 rounded-full inline-block"
+            id="profileRole"
+          >
+            Loading...
+          </p>
+
+          <div class="space-y-4">
+            <div
+              class="flex items-start gap-4 p-4 rounded-xl bg-[#FFF8E7]/50 border border-[#FFD700]/30 hover:border-[#FF9933] transition-colors"
+            >
+              <div
+                class="w-10 h-10 bg-[#FF9933]/10 text-[#FF9933] rounded-lg flex items-center justify-center shrink-0"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
+                  ></path>
+                </svg>
+              </div>
+              <div>
+                <p
+                  class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1"
+                >
+                  फोन नम्बर / इमेल (Contact)
+                </p>
+                <p
+                  class="font-semibold text-lg text-[#3E1C00]"
+                  id="profileContact"
+                >
+                  Loading...
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Siblings (Example Feature) -->
+          <div class="mt-8 border-t border-gray-100 pt-6">
+            <h3 class="text-xl font-bold text-[#8B0000] mb-4">
+              अन्य सुविधाहरू
+            </h3>
+            <p class="text-gray-500 text-sm">
+              आफ्नो भूमिका र पासवर्ड परिवर्तन गर्न व्यवस्थापकलाई सम्पर्क
+              गर्नुहोस्। (Contact admin to change role or password)
+            </p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+
+        const role = localStorage.getItem("gurukul_userRole");
+        const name = localStorage.getItem("gurukul_userName") || "User";
+        const phone =
+          localStorage.getItem("gurukul_userPhone") || user.email || "N/A";
+
+        if (role === "admin" || role === "teacher") {
+          document.getElementById("backBtn").href = "parent-portal.html";
+        } else {
+          document.getElementById("backBtn").href = "parent-portal.html";
+        }
+
+        document.getElementById("profileName").textContent = name;
+        document.getElementById("avatarLetter").textContent = name
+          .charAt(0)
+          .toUpperCase();
+        document.getElementById("profileContact").textContent = phone;
+
+        const roleMap = {
+          admin: "व्यवस्थापक (Admin)",
+          teacher: "शिक्षक (Teacher)",
+          parent: "अभिभावक (Parent)",
+          student: "विद्यार्थी (Student)",
+        };
+
+        document.getElementById("profileRole").textContent =
+          roleMap[role] || role;
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+    </script>
+  </body>
+</html>

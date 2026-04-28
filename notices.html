@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - सूचना (Notices)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(#ff993322 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="parent-portal.html"
+          id="backBtn"
+          class="hover:bg-white/10 p-1 rounded transition-colors block"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg">सूचना (Notices & Syllabus)</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <main class="flex-1 max-w-6xl mx-auto w-full p-4 sm:p-6 z-10 relative">
+      <div class="flex flex-col flex-col-reverse md:flex-row gap-6">
+        <div class="w-full md:w-2/3">
+          <h2 class="text-2xl font-bold text-[#8B0000] mb-6">
+            विगतका सूचनाहरू (Latest Notices)
+          </h2>
+          <div id="notesGrid" class="grid grid-cols-1 gap-4">
+            <div class="col-span-full py-12 text-center opacity-60">
+              लोड हुँदैछ...
+            </div>
+          </div>
+        </div>
+
+        <!-- Upload Form -->
+        <div id="uploadSection" class="w-full md:w-1/3 hidden">
+          <div
+            class="bg-white rounded-2xl shadow-xl border-t-8 border-[#FF9933] overflow-hidden sticky top-24"
+          >
+            <div
+              class="bg-[#FFF8E7] p-4 border-b border-[#FFD700]/30 text-[#8B0000] font-bold"
+            >
+              नयाँ सूचना थप्नुहोस् (Add Notice)
+            </div>
+            <form id="uploadForm" class="p-5 space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >शीर्षक (Notice Title)*</label
+                >
+                <input
+                  type="text"
+                  id="noteTitle"
+                  required
+                  placeholder="e.g. Scholarship Exam 2083"
+                  class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933]"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >PDF फाइल (File)*</label
+                >
+                <input
+                  type="file"
+                  id="noteFile"
+                  accept="application/pdf"
+                  class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#FF9933]/10 file:text-[#FF9933] hover:file:bg-[#FF9933]/20"
+                />
+              </div>
+              <div
+                id="uploadProgress"
+                class="text-sm font-bold text-[#FF9933] hidden"
+              ></div>
+              <button
+                type="submit"
+                id="submitBtn"
+                class="w-full bg-[#FF9933] hover:bg-[#e68a2e] text-white py-2.5 rounded-lg shadow font-bold border-b-4 border-[#8B0000]/20 transition-all mt-4"
+              >
+                प्रकाशन गर्नुहोस्
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+      const storage = firebase.storage();
+
+      let currentUserRole = null;
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        currentUserRole = localStorage.getItem("gurukul_userRole");
+
+        if (currentUserRole === "parent" || currentUserRole === "student") {
+          document.getElementById("uploadSection").style.display = "none";
+        } else {
+          document.getElementById("uploadSection").classList.remove("hidden");
+        }
+
+        if (currentUserRole === "admin") {
+          document.getElementById("backBtn").href = "parent-portal.html";
+        }
+
+        loadNotes();
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      async function loadNotes() {
+        const grid = document.getElementById("notesGrid");
+
+        try {
+          let query = db.collection("notices").orderBy("createdAt", "desc");
+          const snapshot = await query.get();
+
+          let notes = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+          if (notes.length === 0) {
+            grid.innerHTML =
+              '<div class="col-span-full py-12 text-center opacity-60">कुनै सूचना भेटिएन (No notices found)</div>';
+            return;
+          }
+
+          let html = "";
+          notes.forEach((note) => {
+            const date = note.createdAt
+              ? new Date(note.createdAt.seconds * 1000).toLocaleDateString()
+              : "New";
+
+            let deleteBtn = "";
+            if (currentUserRole === "admin" || currentUserRole === "teacher") {
+              deleteBtn = `<button onclick="deleteNote('${note.id}')" class="text-red-500 hover:text-red-700 bg-red-50 p-1.5 rounded"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>`;
+            }
+
+            // Download link conditionally
+            let fileLink = "";
+            if (note.fileUrl) {
+              fileLink = `<a href="${note.fileUrl}" target="_blank" class="inline-block mt-3 text-sm font-bold text-[#FF9933] hover:underline flex items-center gap-1">
+                                    <span>Download PDF / View</span> <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                                </a>`;
+            }
+
+            html += `
+                        <div class="bg-white rounded-xl shadow border border-gray-100 p-4 relative group hover:border-[#FF9933]/50 transition-colors">
+                            <div class="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                                ${deleteBtn}
+                            </div>
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 bg-[#FFF8E7] text-[#FF9933] border-2 border-[#FFD700] rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-xl">
+                                    📢
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="font-bold text-[#3E1C00] truncate text-lg" title="${note.title}">${note.title}</h4>
+                                    <div class="text-xs text-gray-400 mt-1">${date} • ${note.uploaderName || "Admin"}</div>
+                                    ${fileLink}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+          });
+          grid.innerHTML = html;
+        } catch (err) {
+          console.error(err);
+          grid.innerHTML =
+            '<div class="col-span-full py-12 text-center text-red-500">Error loading notices.</div>';
+        }
+      }
+
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const fileInput = document.getElementById("noteFile");
+          const file = fileInput.files[0];
+
+          const btn = document.getElementById("submitBtn");
+          const progress = document.getElementById("uploadProgress");
+
+          btn.disabled = true;
+          progress.classList.remove("hidden");
+          progress.textContent =
+            "अपलोड हुँदैछ... कृपया पर्खनुहोस् (Publishing...)";
+
+          try {
+            let url = "";
+            let fileName = "";
+            if (file) {
+              const storageRef = storage.ref(
+                `notices/${Date.now()}_${file.name}`,
+              );
+              const snapshot = await storageRef.put(file);
+              url = await snapshot.ref.getDownloadURL();
+              fileName = file.name;
+            }
+
+            await db.collection("notices").add({
+              title: document.getElementById("noteTitle").value,
+              fileUrl: url,
+              fileName: fileName,
+              uploaderName: localStorage.getItem("gurukul_userName") || "Admin",
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+
+            showToast("सूचना सफलतापूर्वक प्रकाशन भयो।");
+            document.getElementById("uploadForm").reset();
+            loadNotes();
+          } catch (err) {
+            console.error(err);
+            alert("Upload Error: " + err.message);
+          } finally {
+            btn.disabled = false;
+            progress.classList.add("hidden");
+          }
+        });
+
+      async function deleteNote(id) {
+        if (
+          confirm(
+            "के तपाईं यो सूचना हटाउन चाहनुहुन्छ? (Are you sure you want to delete this?)",
+          )
+        ) {
+          try {
+            await db.collection("notices").doc(id).delete();
+            showToast("सूचना हटाइयो।");
+            loadNotes();
+          } catch (e) {
+            alert("Error: " + e.message);
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

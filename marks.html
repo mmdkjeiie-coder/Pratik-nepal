@@ -1,0 +1,426 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - अंक / नतिजा (Marks)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(#ff993322 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <!-- Top Navigation -->
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="parent-portal.html"
+          id="backBtn"
+          class="hover:bg-white/10 p-1 rounded transition-colors hidden sm:block"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg hidden sm:block">
+          अंक / नतिजा (Marks & Results)
+        </h1>
+        <h1 class="font-bold text-lg sm:hidden">नतिजा</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <main class="flex-1 max-w-5xl mx-auto w-full p-4 sm:p-6 z-10 relative">
+      <div
+        class="bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-[#FFD700]/30 p-5 mb-6"
+      >
+        <h2
+          class="text-2xl font-bold text-[#8B0000] mb-4 border-b pb-2 border-[#FFD700]/50"
+        >
+          परीक्षा नतिजा प्रविष्टि (Result Entry)
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-2">
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >परीक्षा (Exam)</label
+            >
+            <select
+              id="examSelect"
+              class="w-full px-4 py-2.5 rounded-lg border border-[#FFD700]/50 bg-[#FFF8E7]/50 focus:outline-none focus:ring-2 focus:ring-[#FF9933] text-sm font-medium"
+            >
+              <option value="" disabled selected>छान्नुहोस्...</option>
+              <option value="first_term">प्रथम त्रैमासिक (First Term)</option>
+              <option value="second_term">
+                दोस्रो त्रैमासिक (Second Term)
+              </option>
+              <option value="final_term">वार्षिक परीक्षा (Final Term)</option>
+              <option value="monthly">मासिक परीक्षा (Monthly)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >कक्षा (Class)</label
+            >
+            <select
+              id="classSelect"
+              class="w-full px-4 py-2.5 rounded-lg border border-[#FFD700]/50 bg-[#FFF8E7]/50 focus:outline-none focus:ring-2 focus:ring-[#FF9933] text-sm font-medium"
+            >
+              <option value="" disabled selected>छान्नुहोस्...</option>
+              <option value="1">कक्षा १</option>
+              <option value="2">कक्षा २</option>
+              <option value="3">कक्षा ३</option>
+              <option value="4">कक्षा ४</option>
+              <option value="5">कक्षा ५</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >विषय (Subject)</label
+            >
+            <select
+              id="subjectSelect"
+              class="w-full px-4 py-2.5 rounded-lg border border-[#FFD700]/50 bg-[#FFF8E7]/50 focus:outline-none focus:ring-2 focus:ring-[#FF9933] text-sm font-medium"
+            >
+              <option value="" disabled selected>छान्नुहोस्...</option>
+              <option value="ved">वेद (Veda)</option>
+              <option value="sanskrit">संस्कृत (Sanskrit)</option>
+              <option value="math">गणित (Math)</option>
+              <option value="nepali">नेपाली (Nepali)</option>
+              <option value="english">अंग्रेजी (English)</option>
+              <option value="science">विज्ञान (Science)</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button
+              onclick="loadStudentsForMarks()"
+              class="w-full bg-[#FF9933] hover:bg-[#e68a2e] text-white px-6 py-2.5 rounded-lg shadow transition-all font-bold tracking-wide border-b-4 border-[#8B0000]/20 h-[44px]"
+            >
+              खोज्नुहोस्
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <form id="marksForm" class="hidden">
+        <div
+          class="bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-[#FFD700]/30 overflow-hidden mb-6"
+        >
+          <div
+            class="bg-gradient-to-r from-[#8B0000]/10 to-transparent p-4 border-b border-[#FFD700]/30 flex justify-between items-center text-[#8B0000]"
+          >
+            <h3 class="font-bold text-lg">
+              <span id="lblExam"></span> | कक्षा: <span id="lblClass"></span> |
+              विषय: <span id="lblSubject"></span>
+            </h3>
+            <div class="text-sm font-semibold opacity-80">
+              पूर्णांक (Total): 100
+            </div>
+          </div>
+
+          <div class="p-0 sm:p-4 overflow-x-auto">
+            <table class="w-full text-left border-collapse min-w-[500px]">
+              <thead>
+                <tr class="bg-[#FFF8E7] text-[#8B0000]">
+                  <th
+                    class="p-3 border-b border-[#FFD700]/30 font-bold whitespace-nowrap w-24"
+                  >
+                    रोल नं.
+                  </th>
+                  <th class="p-3 border-b border-[#FFD700]/30 font-bold">
+                    नाम (Name)
+                  </th>
+                  <th
+                    class="p-3 border-b border-[#FFD700]/30 font-bold w-32 text-center"
+                  >
+                    प्राप्तांक (Marks)
+                  </th>
+                  <th
+                    class="p-3 border-b border-[#FFD700]/30 font-bold text-center"
+                  >
+                    ग्रेड (Grade)
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="marksTbody">
+                <!-- JS Populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <div
+            class="p-4 bg-gray-50 border-t border-[#FFD700]/30 flex justify-end gap-3"
+          >
+            <button
+              type="submit"
+              id="saveBtn"
+              class="bg-[#FF9933] hover:bg-[#e68a2e] text-white px-8 py-2.5 rounded-lg shadow transition-all font-bold border-b-4 border-[#8B0000]/20"
+            >
+              प्राप्तांक सुरक्षित गर्नुहोस् (Save Marks)
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div id="loadingState" class="hidden text-center py-12">
+        <div
+          class="w-10 h-10 border-4 border-[#FF9933] border-t-transparent rounded-full animate-spin mx-auto mb-4"
+        ></div>
+        <p class="text-[#8B0000] font-bold">लोड हुँदैछ... (Loading...)</p>
+      </div>
+
+      <div
+        id="emptyState"
+        class="text-center py-12 bg-white/50 backdrop-blur rounded-2xl border border-[#FFD700]/30"
+      >
+        <div class="text-4xl mb-2 opacity-50">📝</div>
+        <p class="text-[#3E1C00] font-medium opacity-70">
+          कृपाया परीक्षा, कक्षा र विषय छान्नुहोस्।
+        </p>
+      </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+
+      let currentStudents = [];
+      let existingMarks = {};
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        const role = localStorage.getItem("gurukul_userRole");
+        if (role === "parent") {
+          window.location.href = "parent-portal.html";
+        }
+        if (role === "teacher") {
+          document.getElementById("backBtn").style.display = "none";
+        }
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      function calculateGrade(marks) {
+        if (marks === "" || isNaN(marks)) return "-";
+        const m = parseFloat(marks);
+        if (m >= 90) return "A+";
+        if (m >= 80) return "A";
+        if (m >= 70) return "B+";
+        if (m >= 60) return "B";
+        if (m >= 50) return "C+";
+        if (m >= 40) return "C";
+        return "D (Fail)";
+      }
+
+      async function loadStudentsForMarks() {
+        const exam = document.getElementById("examSelect").value;
+        const cls = document.getElementById("classSelect").value;
+        const sub = document.getElementById("subjectSelect").value;
+
+        if (!exam || !cls || !sub) {
+          alert("सबै विवरण छान्नुहोस्। (Select all fields)");
+          return;
+        }
+
+        document.getElementById("emptyState").classList.add("hidden");
+        document.getElementById("marksForm").classList.add("hidden");
+        document.getElementById("loadingState").classList.remove("hidden");
+
+        try {
+          // Fetch Students
+          const stuSnap = await db
+            .collection("students")
+            .where("class", "==", cls)
+            .get();
+          currentStudents = stuSnap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          }));
+          currentStudents.sort((a, b) =>
+            (a.nameEnglish || "").localeCompare(b.nameEnglish || ""),
+          );
+
+          // Fetch existing marks
+          // Structure: marks_collection / {exam_class_subject}
+          const docId = `${exam}_C${cls}_${sub}`;
+          const marksSnap = await db.collection("marks").doc(docId).get();
+
+          if (marksSnap.exists) {
+            existingMarks = marksSnap.data().records || {};
+          } else {
+            existingMarks = {};
+          }
+
+          // UI setup
+          const selExam = document.getElementById("examSelect");
+          const selSub = document.getElementById("subjectSelect");
+
+          document.getElementById("lblExam").textContent =
+            selExam.options[selExam.selectedIndex].text;
+          document.getElementById("lblClass").textContent = cls;
+          document.getElementById("lblSubject").textContent =
+            selSub.options[selSub.selectedIndex].text;
+
+          renderMarksTable();
+        } catch (err) {
+          console.error(err);
+          alert("त्रुटि: " + err.message);
+          document.getElementById("emptyState").classList.remove("hidden");
+        } finally {
+          document.getElementById("loadingState").classList.add("hidden");
+        }
+      }
+
+      function renderMarksTable() {
+        const tbody = document.getElementById("marksTbody");
+
+        if (currentStudents.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="4" class="text-center py-8 text-gray-500">यस कक्षामा विद्यार्थीहरू छैनन्।</td></tr>';
+        } else {
+          let html = "";
+          currentStudents.forEach((stu) => {
+            const mark = existingMarks[stu.id] || "";
+            const grade = calculateGrade(mark);
+
+            html += `
+                        <tr class="border-b border-[#FFD700]/20 hover:bg-[#FFF8E7]/50 transition-colors">
+                            <td class="p-3 text-sm opacity-70">${stu.studentId}</td>
+                            <td class="p-3 font-bold text-[#3E1C00]">
+                                ${stu.nameNepali}
+                            </td>
+                            <td class="p-3 text-center">
+                                <input type="number" min="0" max="100" id="mark_${stu.id}" value="${mark}" 
+                                    oninput="document.getElementById('grade_${stu.id}').textContent = calculateGrade(this.value)"
+                                    class="w-20 px-2 py-1 text-center font-bold border border-[#FFD700]/50 rounded focus:outline-none focus:ring-2 focus:ring-[#FF9933] bg-white">
+                            </td>
+                            <td class="p-3 text-center font-bold text-[#8B0000]" id="grade_${stu.id}">
+                                ${grade}
+                            </td>
+                        </tr>
+                    `;
+          });
+          tbody.innerHTML = html;
+        }
+        document.getElementById("marksForm").classList.remove("hidden");
+      }
+
+      document
+        .getElementById("marksForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("saveBtn");
+          btn.disabled = true;
+          btn.textContent = "...";
+
+          const exam = document.getElementById("examSelect").value;
+          const cls = document.getElementById("classSelect").value;
+          const sub = document.getElementById("subjectSelect").value;
+          const docId = `${exam}_C${cls}_${sub}`;
+
+          let records = {};
+          currentStudents.forEach((stu) => {
+            const val = document.getElementById(`mark_${stu.id}`).value;
+            if (val !== "") {
+              records[stu.id] = parseFloat(val);
+            }
+          });
+
+          try {
+            await db.collection("marks").doc(docId).set({
+              exam: exam,
+              class: cls,
+              subject: sub,
+              records: records,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedBy: auth.currentUser.email,
+            });
+            showToast("प्राप्तांक सफलतापूर्वक सुरक्षित गरियो। (Marks Saved)");
+          } catch (err) {
+            console.error(err);
+            alert("सुरक्षित गर्न सकिएन। " + err.message);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = "प्राप्तांक सुरक्षित गर्नुहोस् (Save Marks)";
+          }
+        });
+    </script>
+  </body>
+</html>

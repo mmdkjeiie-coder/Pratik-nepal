@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - क्यालेन्डर (Calendar)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-color: #fff8e7;
+        background-image: radial-gradient(#ff993322 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="parent-portal.html"
+          id="backBtn"
+          class="hover:bg-white/10 p-1 rounded transition-colors block"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg">शैक्षिक क्यालेन्डर (Calendar)</h1>
+      </div>
+    </nav>
+
+    <main class="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 z-10 relative">
+      <div
+        class="bg-white rounded-2xl shadow-xl overflow-hidden border border-[#FFD700]/30 mb-8"
+      >
+        <div
+          class="bg-gradient-to-r from-[#FF9933] to-[#FF8C00] p-6 text-center text-white relative"
+        >
+          <h2 class="text-3xl font-bold mb-1">२०८३ वैशाख</h2>
+          <p class="opacity-90 font-medium">Baishakh 2083</p>
+        </div>
+
+        <div class="p-6">
+          <h3 class="text-xl font-bold text-[#8B0000] mb-4 border-b pb-2">
+            महत्त्वपूर्ण बिदा र पर्वहरू (Events & Holidays)
+          </h3>
+
+          <div class="space-y-4">
+            <div
+              class="flex items-center gap-4 p-4 rounded-xl bg-red-50 border border-red-100 hover:shadow-md transition-shadow"
+            >
+              <div
+                class="w-14 h-14 bg-white rounded-lg flex flex-col items-center justify-center font-bold text-lg shadow-sm border border-red-200"
+              >
+                <span class="text-xs text-red-500 uppercase leading-tight"
+                  >वैशाख</span
+                >
+                <span class="text-[#8B0000] leading-none mt-1">१</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg text-[#8B0000]">
+                  नयाँ वर्ष २०८३ (New Year)
+                </h4>
+                <p class="text-sm text-gray-600">सार्वजनिक बिदा</p>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center gap-4 p-4 rounded-xl bg-orange-50 border border-orange-100 hover:shadow-md transition-shadow"
+            >
+              <div
+                class="w-14 h-14 bg-white rounded-lg flex flex-col items-center justify-center font-bold text-lg shadow-sm border border-orange-200"
+              >
+                <span class="text-xs text-orange-500 uppercase leading-tight"
+                  >वैशाख</span
+                >
+                <span class="text-[#8B0000] leading-none mt-1">२</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg text-[#8B0000]">
+                  सिरुवा पर्व (Siruwa Parva)
+                </h4>
+                <p class="text-sm text-gray-600">विशेष पर्व</p>
+              </div>
+            </div>
+
+            <div
+              class="flex items-center gap-4 p-4 rounded-xl bg-purple-50 border border-purple-100 hover:shadow-md transition-shadow"
+            >
+              <div
+                class="w-14 h-14 bg-white rounded-lg flex flex-col items-center justify-center font-bold text-lg shadow-sm border border-purple-200"
+              >
+                <span class="text-xs text-purple-500 uppercase leading-tight"
+                  >वैशाख</span
+                >
+                <span class="text-[#8B0000] leading-none mt-1">२६</span>
+              </div>
+              <div>
+                <h4 class="font-bold text-lg text-[#8B0000]">
+                  मातातीर्थ औंसी (Mother's Day)
+                </h4>
+                <p class="text-sm text-gray-600">आमाको मुख हेर्ने दिन</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-gray-50 p-4 text-center text-sm text-gray-500 border-t">
+          नोट: अन्य महिनाको क्यालेन्डर छिट्टै उपलब्ध हुनेछ। (Other months will
+          be available soon.)
+        </div>
+      </div>
+    </main>
+
+    <script>
+      const role = localStorage.getItem("gurukul_userRole");
+      if (role === "admin" || role === "teacher") {
+        document.getElementById("backBtn").href = "parent-portal.html";
+      }
+    </script>
+  </body>
+</html>

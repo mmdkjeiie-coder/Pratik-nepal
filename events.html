@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - कार्यक्रम (Events & Gallery)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(#ff993322 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <!-- Top Navigation -->
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="#"
+          id="backBtn"
+          onclick="goBack()"
+          class="hover:bg-white/10 p-1 rounded transition-colors"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg hidden sm:block">
+          कार्यक्रम तथा ग्यालरी (Events & Gallery)
+        </h1>
+        <h1 class="font-bold text-lg sm:hidden">कार्यक्रम</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 z-10 relative">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Left Side: Gallery Grid -->
+        <div class="w-full lg:w-2/3">
+          <div
+            class="mb-6 flex justify-between items-end border-b-2 border-[#FFD700]/50 pb-2"
+          >
+            <h2 class="text-2xl font-bold text-[#8B0000]">
+              सबै कार्यक्रमहरू (Events Archive)
+            </h2>
+          </div>
+
+          <div id="eventsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              class="col-span-full py-12 text-center text-lg opacity-60 italic"
+            >
+              लोड हुँदैछ... (Loading...)
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Upload Form (Visible to Admin/Teacher) -->
+        <div id="uploadSection" class="w-full lg:w-1/3 hidden">
+          <div
+            class="bg-white/90 backdrop-blur rounded-2xl shadow-xl border-t-8 border-[#FF9933] overflow-hidden sticky top-24"
+          >
+            <div
+              class="bg-[#FFF8E7] p-4 border-b border-[#FFD700]/30 text-[#8B0000] font-bold text-lg flex items-center gap-2"
+            >
+              <span>📸</span> नयाँ कार्यक्रम थप्नुहोस् (Add Event)
+            </div>
+            <form id="eventForm" class="p-5 space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >कार्यक्रमको नाम (Event Name)*</label
+                >
+                <input
+                  type="text"
+                  id="eventName"
+                  required
+                  class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >मिति (Date)*</label
+                >
+                <input
+                  type="date"
+                  id="eventDate"
+                  required
+                  class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >विवरण (Description)*</label
+                >
+                <textarea
+                  id="eventDesc"
+                  rows="3"
+                  required
+                  class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+                ></textarea>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#FF9933] mb-1"
+                  >प्रथम स्थान हासिल गर्ने विद्यार्थी (Top Performer)</label
+                >
+                <input
+                  type="text"
+                  id="topStudent"
+                  placeholder="Student name (optional)"
+                  class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >फोटो (Photo)*</label
+                >
+                <div class="flex items-center justify-center w-full">
+                  <label
+                    class="flex flex-col items-center justify-center w-full h-32 border-2 border-[#FFD700] border-dashed rounded-lg cursor-pointer bg-[#FFF8E7]/50 hover:bg-[#FFF8E7]"
+                  >
+                    <div
+                      class="flex flex-col items-center justify-center pt-5 pb-6"
+                    >
+                      <svg
+                        class="w-8 h-8 mb-2 text-[#FF9933]"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        ></path>
+                      </svg>
+                      <p
+                        class="text-sm text-gray-500 font-bold"
+                        id="fileNameDisplay"
+                      >
+                        तस्बिर छान्नुहोस् (Select Photo)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      id="eventPhoto"
+                      accept="image/*"
+                      class="hidden"
+                      required
+                      onchange="handleFileSelect(event)"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div
+                id="uploadProgress"
+                class="text-sm font-bold text-[#FF9933] hidden text-center"
+              ></div>
+
+              <button
+                type="submit"
+                id="submitBtn"
+                class="w-full bg-[#FF9933] hover:bg-[#e68a2e] text-white py-3 rounded-lg shadow-lg font-bold border-b-4 border-[#8B0000]/20 transition-all active:scale-95 text-lg mt-2"
+              >
+                प्रकाशित गर्नुहोस् (Publish)
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Full Image Modal -->
+    <div
+      id="imageModal"
+      class="fixed inset-0 bg-black/90 hidden z-[100] flex flex-col items-center justify-center p-4 backdrop-blur-sm transition-opacity"
+    >
+      <button
+        onclick="closeImageModal()"
+        class="absolute top-5 right-5 text-white hover:text-[#FF9933] bg-black/50 p-2 rounded-full cursor-pointer transition-colors z-50"
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path d="M18 6L6 18M6 6l12 12" />
+        </svg>
+      </button>
+      <img
+        id="fullImage"
+        src=""
+        class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl border-4 border-white/20"
+      />
+      <div
+        id="fullImageCaption"
+        class="text-white text-center mt-4 text-xl font-bold font-serif max-w-3xl"
+      ></div>
+    </div>
+
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+      const storage = firebase.storage();
+
+      let currentUserRole = null;
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        currentUserRole = localStorage.getItem("gurukul_userRole");
+
+        if (currentUserRole === "admin" || currentUserRole === "teacher") {
+          document.getElementById("uploadSection").classList.remove("hidden");
+        }
+
+        // Note: date input default
+        document.getElementById("eventDate").valueAsDate = new Date();
+
+        loadEvents();
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function goBack() {
+        if (currentUserRole === "parent")
+          window.location.href = "parent-portal.html";
+        else window.location.href = "parent-portal.html";
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      function handleFileSelect(event) {
+        const file = event.target.files[0];
+        const display = document.getElementById("fileNameDisplay");
+        if (file) {
+          display.textContent = file.name;
+          display.classList.add("text-[#8B0000]");
+        } else {
+          display.textContent = "तस्बिर छान्नुहोस् (Select Photo)";
+          display.classList.remove("text-[#8B0000]");
+        }
+      }
+
+      async function loadEvents() {
+        const grid = document.getElementById("eventsGrid");
+        try {
+          // To avoid needing strict indexes, get all and sort client-side
+          const snapshot = await db.collection("events").get();
+          let events = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          // Sort by date DESC
+          events.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+
+          if (events.length === 0) {
+            grid.innerHTML =
+              '<div class="col-span-full py-12 bg-white/50 rounded-xl text-center opacity-60">कुनै कार्यक्रम भेटिएन (No events found)</div>';
+            return;
+          }
+
+          let html = "";
+          events.forEach((event) => {
+            let deleteBtn = "";
+            if (currentUserRole === "admin" || currentUserRole === "teacher") {
+              deleteBtn = `<button onclick="deleteEvent('${event.id}', event)" class="absolute top-2 right-2 p-1.5 bg-red-100/90 text-red-600 rounded drop-shadow hover:bg-red-500 hover:text-white transition-colors z-10"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>`;
+            }
+
+            const topStudentBadge = event.topStudent
+              ? `<div class="mt-3 inline-flex items-center gap-2 bg-[#FF9933]/10 text-[#FF9933] border border-[#FF9933]/40 px-3 py-1.5 rounded-full text-xs font-bold leading-none">
+                            <span>🏆</span> प्रथम: ${event.topStudent}
+                           </div>`
+              : "";
+
+            // Provide a solid background fallback if image doesn't load immediately
+            html += `
+                        <div class="bg-white rounded-2xl shadow-md border border-[#FFD700]/30 overflow-hidden hover:shadow-xl transition-all group flex flex-col relative">
+                            ${deleteBtn}
+                            <div class="h-48 overflow-hidden bg-gray-100 cursor-pointer relative" onclick="openImageModal('${event.photoUrl}', '${event.name.replace(/'/g, "\\'")}')">
+                                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black/30 transition-opacity z-10">
+                                    <span class="text-white bg-black/50 px-3 py-1 text-sm rounded-full backdrop-blur font-medium">🔍 Click to View</span>
+                                </div>
+                                <img src="${event.photoUrl}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' viewBox=\\'0 0 24 24\\' fill=\\'%23ccc\\'%3E%3Cpath d=\\'M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z\\'/%3E%3C/svg%3E'">
+                            </div>
+                            <div class="p-4 flex-1 flex flex-col">
+                                <div class="flex justify-between items-start gap-2 mb-2">
+                                    <h3 class="font-bold text-[#8B0000] text-lg leading-tight line-clamp-2">${event.name}</h3>
+                                </div>
+                                <div class="text-xs font-semibold text-[#8B0000]/60 mb-2 flex items-center gap-1">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    ${event.date}
+                                </div>
+                                <p class="text-sm text-[#3E1C00] opacity-80 line-clamp-3 mb-2 flex-1">${event.description}</p>
+                                ${topStudentBadge}
+                            </div>
+                        </div>
+                    `;
+          });
+          grid.innerHTML = html;
+        } catch (err) {
+          console.error(err);
+          grid.innerHTML =
+            '<div class="col-span-full py-12 text-center text-red-500 font-bold">त्रुटि: डाटा लोड हुन सकेन।</div>';
+        }
+      }
+
+      document
+        .getElementById("eventForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const fileInput = document.getElementById("eventPhoto");
+          const file = fileInput.files[0];
+          if (!file) return;
+
+          const btn = document.getElementById("submitBtn");
+          const progress = document.getElementById("uploadProgress");
+
+          btn.disabled = true;
+          btn.innerHTML =
+            '<div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin inline-block align-middle mr-2"></div> सुरक्षित गरिँदै...';
+          progress.classList.remove("hidden");
+          progress.textContent = "फोटो अपलोड हुँदैछ... (Uploading Photo)";
+
+          try {
+            let photoUrl = "";
+            try {
+              // Upload to Storage
+              const storageRef = storage.ref(
+                `events/${Date.now()}_${file.name}`,
+              );
+              const snapshot = await storageRef.put(file);
+              photoUrl = await snapshot.ref.getDownloadURL();
+            } catch (uploadErr) {
+              console.warn(
+                "Storage upload failed, attempting local preview for demo:",
+                uploadErr,
+              );
+              photoUrl = URL.createObjectURL(file);
+            }
+
+            progress.textContent = "विवरण सुरक्षित गरिँदै... (Saving Details)";
+
+            // Save to Firestore
+            await db.collection("events").add({
+              name: document.getElementById("eventName").value,
+              date: document.getElementById("eventDate").value,
+              description: document.getElementById("eventDesc").value,
+              topStudent: document.getElementById("topStudent").value || null,
+              photoUrl: photoUrl,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              createdBy: auth.currentUser.email,
+            });
+
+            showToast("कार्यक्रम सफलतापूर्वक थपियो। (Event Added)");
+            document.getElementById("eventForm").reset();
+            document.getElementById("fileNameDisplay").textContent =
+              "तस्बिर छान्नुहोस् (Select Photo)";
+            document
+              .getElementById("fileNameDisplay")
+              .classList.remove("text-[#8B0000]");
+            loadEvents();
+          } catch (err) {
+            console.error(err);
+            alert("Error: " + err.message);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = "प्रकाशित गर्नुहोस् (Publish)";
+            progress.classList.add("hidden");
+          }
+        });
+
+      async function deleteEvent(id, e) {
+        e.stopPropagation(); // Prevents image modal from opening
+        if (
+          confirm(
+            "के तपाईं यो कार्यक्रम हटाउन पक्का हुनुहुन्छ? (Are you sure you want to delete this event?)",
+          )
+        ) {
+          try {
+            await db.collection("events").doc(id).delete();
+            showToast("कार्यक्रम हटाइयो। (Deleted)");
+            loadEvents();
+          } catch (err) {
+            console.error(err);
+            alert("हटाउन सकिएन। " + err.message);
+          }
+        }
+      }
+
+      // Image Modal Functions
+      function openImageModal(url, title) {
+        const modal = document.getElementById("imageModal");
+        document.getElementById("fullImage").src = url;
+        document.getElementById("fullImageCaption").textContent = title;
+        modal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeImageModal() {
+        const modal = document.getElementById("imageModal");
+        modal.classList.add("hidden");
+        document.getElementById("fullImage").src = "";
+        document.body.style.overflow = "";
+      }
+    </script>
+  </body>
+</html>

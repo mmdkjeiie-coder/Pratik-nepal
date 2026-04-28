@@ -1,0 +1,123 @@
+Firebase Security Rules & Firestore Structure for Gurukul App
+============================================================
+
+Note: Please apply these rules to your Firebase console if you are deploying to production. This ensures data privacy and security based on user roles.
+
+Collections Used in this App:
+1. `students`: Stores student records.
+2. `attendance`: Stores daily attendance logs.
+3. `marks`: Stores exam marks.
+4. `notes`: Stores daily notes and homework.
+5. `events`: Stores event details and photos.
+6. `complaints`: Stores feedback and complaints.
+7. `clubs`: Stores club definitions.
+8. `club_members`: Stores student club enrollments.
+9. `wall_of_fame`: Stores student achievements.
+10. `quiz_questions`: Stores Quiz questions.
+11. `quiz_scores`: Stores Quiz leaderboard.
+12. `library`: Stores reading room links and books.
+13. `leave_requests`: Stores student leave applications.
+
+---
+
+### Suggested `firestore.rules` Draft
+
+```javascript
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Base rule: Deny everything by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // Function to check if user is authenticated
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // 1. Students
+    match /students/{studentId} {
+      // In a real app, admins can write, parents can read only if their email is attached
+      allow read: if isSignedIn(); 
+      allow write: if isSignedIn(); // Simplified for preview
+    }
+
+    // 2. Attendance
+    match /attendance/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 3. Marks
+    match /marks/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 4. Notes & Homework
+    match /notes/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 5. Events
+    match /events/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 6. Complaints
+    match /complaints/{docId} {
+      // Parents can read/write their own complaints
+      // Admins/Teachers can read all and update
+      allow create: if isSignedIn() && request.resource.data.createdBy == request.auth.token.email;
+      allow read, update, delete: if isSignedIn();
+    }
+
+    // 7. Clubs
+    match /clubs/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 8. Club Members
+    match /club_members/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 9. Wall of Fame
+    match /wall_of_fame/{docId} {
+      allow read: if true; // Public view
+      allow write: if isSignedIn();
+    }
+
+    // 10. Quiz Data
+    match /quiz_questions/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+    match /quiz_scores/{docId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+    }
+
+    // 11. Library
+    match /library/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn();
+    }
+
+    // 12. Leave Requests
+    match /leave_requests/{docId} {
+      allow create: if isSignedIn() && request.resource.data.parentEmail == request.auth.token.email;
+      allow read, update, delete: if isSignedIn();
+    }
+  }
+}
+```
+
+**Security Warning**: 
+The rules above are simplified for this demo environment to ensure the app works smoothly without "Insufficient Permissions" errors during preview. For a production deployment, you MUST implement robust Role-Based Access Control (RBAC) securely verifying Admin/Teacher privileges using Custom Claims or an `admins` collection. 

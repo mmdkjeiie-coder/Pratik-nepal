@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - उपस्थिति (Attendance)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(#ff993322 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+
+      /* Custom radio buttons for attendance */
+      .att-radio input {
+        display: none;
+      }
+      .att-radio span {
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        line-height: 30px;
+        text-align: center;
+        border-radius: 50%;
+        border: 2px solid #ccc;
+        cursor: pointer;
+        font-weight: bold;
+        transition: all 0.2s;
+      }
+      .att-radio.present input:checked + span {
+        background-color: #22c55e;
+        border-color: #22c55e;
+        color: white;
+      }
+      .att-radio.absent input:checked + span {
+        background-color: #ef4444;
+        border-color: #ef4444;
+        color: white;
+      }
+      .att-radio.late input:checked + span {
+        background-color: #f59e0b;
+        border-color: #f59e0b;
+        color: white;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <!-- Top Navigation -->
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="parent-portal.html"
+          id="backBtn"
+          class="hover:bg-white/10 p-1 rounded transition-colors hidden sm:block"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg">उपस्थिति (Attendance)</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 z-10 relative">
+      <div
+        class="bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-[#FFD700]/30 p-5 mb-6"
+      >
+        <h2
+          class="text-2xl font-bold text-[#8B0000] mb-4 border-b pb-2 border-[#FFD700]/50"
+        >
+          उपस्थिति विवरण छान्नुहोस्
+        </h2>
+
+        <div class="flex flex-col sm:flex-row gap-4 mb-2">
+          <div class="flex-1">
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >मिति (Date)</label
+            >
+            <input
+              type="date"
+              id="dateInput"
+              class="w-full px-4 py-2.5 rounded-lg border border-[#FFD700]/50 bg-[#FFF8E7]/50 focus:outline-none focus:ring-2 focus:ring-[#FF9933] text-lg font-medium"
+            />
+          </div>
+          <div class="flex-1">
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >कक्षा (Class)</label
+            >
+            <select
+              id="classSelect"
+              class="w-full px-4 py-2.5 rounded-lg border border-[#FFD700]/50 bg-[#FFF8E7]/50 focus:outline-none focus:ring-2 focus:ring-[#FF9933] text-lg font-medium"
+            >
+              <option value="" disabled selected>कक्षा छान्नुहोस्...</option>
+              <option value="1">कक्षा १</option>
+              <option value="2">कक्षा २</option>
+              <option value="3">कक्षा ३</option>
+              <option value="4">कक्षा ४</option>
+              <option value="5">कक्षा ५</option>
+            </select>
+          </div>
+          <div class="flex items-end">
+            <button
+              onclick="loadStudentsForAttendance()"
+              class="w-full sm:w-auto bg-[#FF9933] hover:bg-[#e68a2e] text-white px-6 py-2.5 rounded-lg shadow transition-all font-bold tracking-wide border-b-4 border-[#8B0000]/20 h-[48px]"
+            >
+              खोज्नुहोस्
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <form id="attendanceForm" class="hidden">
+        <div
+          class="bg-white/90 backdrop-blur rounded-2xl shadow-xl border border-[#FFD700]/30 overflow-hidden mb-6"
+        >
+          <div
+            class="bg-gradient-to-r from-[#FF9933]/20 to-transparent p-4 border-b border-[#FFD700]/30 flex justify-between items-center"
+          >
+            <h3 class="font-bold text-[#8B0000] text-lg">
+              विद्यार्थी सूची - कक्षा <span id="displayClass"></span>
+            </h3>
+            <div class="text-sm font-semibold opacity-70">
+              कुल: <span id="studentCount">0</span>
+            </div>
+          </div>
+
+          <div class="p-0 sm:p-4 overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-[#FFF8E7] text-[#8B0000]">
+                  <th
+                    class="p-3 border-b border-[#FFD700]/30 font-bold whitespace-nowrap"
+                  >
+                    रोल नं. (ID)
+                  </th>
+                  <th class="p-3 border-b border-[#FFD700]/30 font-bold w-full">
+                    नाम (Name)
+                  </th>
+                  <th
+                    class="p-3 border-b border-[#FFD700]/30 font-bold text-center"
+                  >
+                    उपस्थिति (Status)
+                  </th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTbody">
+                <!-- JS Populated -->
+              </tbody>
+            </table>
+          </div>
+
+          <div
+            class="p-4 bg-gray-50 border-t border-[#FFD700]/30 flex justify-end gap-3"
+          >
+            <button
+              type="button"
+              onclick="markAll('present')"
+              class="px-4 py-2 text-sm bg-green-100 text-green-700 rounded hover:bg-green-200 font-bold"
+            >
+              सबै उपस्थित (All P)
+            </button>
+            <button
+              type="submit"
+              id="saveBtn"
+              class="bg-[#FF9933] hover:bg-[#e68a2e] text-white px-8 py-2 rounded-lg shadow transition-all font-bold border-b-4 border-[#8B0000]/20"
+            >
+              सुरक्षित गर्नुहोस् (Save)
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div id="loadingState" class="hidden text-center py-12">
+        <div
+          class="w-10 h-10 border-4 border-[#FF9933] border-t-transparent rounded-full animate-spin mx-auto mb-4"
+        ></div>
+        <p class="text-[#8B0000] font-bold">लोड हुँदैछ... (Loading...)</p>
+      </div>
+
+      <div
+        id="emptyState"
+        class="hidden text-center py-12 bg-white/50 backdrop-blur rounded-2xl border border-[#FFD700]/30"
+      >
+        <div class="text-4xl mb-2 opacity-50">👥</div>
+        <p class="text-[#3E1C00] font-medium opacity-70">
+          कृपाया मिति र कक्षा छान्नुहोस्।
+        </p>
+      </div>
+    </main>
+
+    <!-- Toast Notification -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+
+      // Setup Date
+      document.getElementById("dateInput").valueAsDate = new Date();
+      document.getElementById("emptyState").classList.remove("hidden");
+
+      let currentStudents = [];
+      let existingAttendance = {};
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        const role = localStorage.getItem("gurukul_userRole");
+        if (role === "parent") {
+          window.location.href = "parent-portal.html";
+        }
+        if (role === "teacher") {
+          document.getElementById("backBtn").style.display = "none";
+        }
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      async function loadStudentsForAttendance() {
+        const dateVal = document.getElementById("dateInput").value;
+        const classVal = document.getElementById("classSelect").value;
+
+        if (!dateVal || !classVal) {
+          alert("मिति र कक्षा अनिवार्य छ।");
+          return;
+        }
+
+        document.getElementById("emptyState").classList.add("hidden");
+        document.getElementById("attendanceForm").classList.add("hidden");
+        document.getElementById("loadingState").classList.remove("hidden");
+
+        try {
+          // Fetch Students
+          const stuSnap = await db
+            .collection("students")
+            .where("class", "==", classVal)
+            .get();
+          currentStudents = stuSnap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          }));
+          currentStudents.sort((a, b) =>
+            (a.nameEnglish || "").localeCompare(b.nameEnglish || ""),
+          );
+
+          // Fetch Existing Attendance for this date & class
+          // Attendance Doc ID structure: DATE_CLASS
+          const attendanceDocId = `${dateVal}_C${classVal}`;
+          const attSnap = await db
+            .collection("attendance")
+            .doc(attendanceDocId)
+            .get();
+
+          if (attSnap.exists) {
+            existingAttendance = attSnap.data().records || {};
+          } else {
+            existingAttendance = {};
+          }
+
+          renderAttendanceTable(classVal);
+        } catch (err) {
+          console.error(err);
+          alert("त्रुटि: " + err.message);
+          document.getElementById("emptyState").classList.remove("hidden");
+        } finally {
+          document.getElementById("loadingState").classList.add("hidden");
+        }
+      }
+
+      function renderAttendanceTable(classVal) {
+        const tbody = document.getElementById("attendanceTbody");
+        document.getElementById("displayClass").textContent = classVal;
+        document.getElementById("studentCount").textContent =
+          currentStudents.length;
+
+        if (currentStudents.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="3" class="text-center py-8 text-gray-500">यस कक्षामा विद्यार्थीहरू छैनन्।</td></tr>';
+        } else {
+          let html = "";
+          currentStudents.forEach((stu) => {
+            const status = existingAttendance[stu.id] || "present"; // Default present
+
+            const pChecked = status === "present" ? "checked" : "";
+            const aChecked = status === "absent" ? "checked" : "";
+            const lChecked = status === "late" ? "checked" : "";
+
+            html += `
+                        <tr class="border-b border-[#FFD700]/20 hover:bg-[#FFF8E7]/50 transition-colors">
+                            <td class="p-3 text-sm opacity-70">${stu.studentId}</td>
+                            <td class="p-3 font-bold text-[#3E1C00]">
+                                ${stu.nameNepali}
+                                <div class="text-xs font-normal opacity-70">${stu.nameEnglish}</div>
+                            </td>
+                            <td class="p-3 text-center">
+                                <div class="flex items-center justify-center gap-3">
+                                    <label class="att-radio present" title="Present">
+                                        <input type="radio" name="att_${stu.id}" value="present" ${pChecked} required>
+                                        <span>P</span>
+                                    </label>
+                                    <label class="att-radio absent" title="Absent">
+                                        <input type="radio" name="att_${stu.id}" value="absent" ${aChecked}>
+                                        <span>A</span>
+                                    </label>
+                                    <label class="att-radio late" title="Late">
+                                        <input type="radio" name="att_${stu.id}" value="late" ${lChecked}>
+                                        <span>L</span>
+                                    </label>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+          });
+          tbody.innerHTML = html;
+        }
+        document.getElementById("attendanceForm").classList.remove("hidden");
+      }
+
+      function markAll(status) {
+        currentStudents.forEach((stu) => {
+          const radios = document.getElementsByName(`att_${stu.id}`);
+          radios.forEach((r) => {
+            if (r.value === status) r.checked = true;
+          });
+        });
+      }
+
+      document
+        .getElementById("attendanceForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("saveBtn");
+          btn.disabled = true;
+          btn.textContent = "...";
+
+          const dateVal = document.getElementById("dateInput").value;
+          const classVal = document.getElementById("classSelect").value;
+          const attendanceDocId = `${dateVal}_C${classVal}`;
+
+          let records = {};
+          currentStudents.forEach((stu) => {
+            const checked = document.querySelector(
+              `input[name="att_${stu.id}"]:checked`,
+            );
+            if (checked) {
+              records[stu.id] = checked.value;
+            }
+          });
+
+          try {
+            await db.collection("attendance").doc(attendanceDocId).set({
+              date: dateVal,
+              class: classVal,
+              records: records,
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedBy: auth.currentUser.email,
+            });
+            showToast("स्थिति सफलतापूर्वक सुरक्षित गरियो। (Saved)");
+          } catch (err) {
+            console.error(err);
+            alert("सुरक्षित गर्न सकिएन। " + err.message);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = "सुरक्षित गर्नुहोस् (Save)";
+          }
+        });
+    </script>
+  </body>
+</html>

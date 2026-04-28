@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      श्री कृष्ण द्वैपायन गुरुकुल - बिदा स्वीकृति (Leave Applications)
+    </title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(#ff993322 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <!-- Top Navigation -->
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="#"
+          onclick="goBack()"
+          class="hover:bg-white/10 p-1 rounded transition-colors"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg hidden sm:block">
+          बिदा स्वीकृति (Leave Management)
+        </h1>
+        <h1 class="font-bold text-lg sm:hidden">बिदा</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <span
+          id="userRoleBadge"
+          class="hidden sm:inline-block px-2 py-1 bg-white/20 rounded text-xs font-bold border border-white/30"
+        ></span>
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main
+      class="flex-1 max-w-6xl mx-auto w-full p-4 sm:p-6 z-10 relative flex flex-col lg:flex-row gap-6"
+    >
+      <!-- Left Side: List of Requests -->
+      <div class="w-full lg:w-2/3 order-2 lg:order-1">
+        <div
+          class="mb-4 flex justify-between items-end border-b-2 border-[#FFD700]/50 pb-2"
+        >
+          <h2 class="text-2xl font-bold text-[#8B0000]" id="listTitle">
+            बिदाका निवेदनहरू (Leave Requests)
+          </h2>
+        </div>
+
+        <div id="leaveList" class="space-y-4">
+          <div class="py-12 text-center text-lg opacity-60 italic">
+            लोड हुँदैछ... (Loading...)
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Apply Form (Visible to Parents mostly) -->
+      <div class="w-full lg:w-1/3 order-1 lg:order-2">
+        <div
+          class="bg-white/90 backdrop-blur rounded-2xl shadow-xl border-t-8 border-[#FF9933] overflow-hidden sticky top-24"
+        >
+          <div
+            class="bg-[#FFF8E7] p-4 border-b border-[#FFD700]/30 text-[#8B0000] font-bold text-lg flex items-center gap-2"
+          >
+            <span>📝</span> बिदाको निवेदन (Leave Application)
+          </div>
+          <form id="leaveForm" class="p-5 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                >विद्यार्थीको नाम (Student Name)*</label
+              >
+              <input
+                type="text"
+                id="stuName"
+                required
+                class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+              />
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >देखि (From)*</label
+                >
+                <input
+                  type="date"
+                  id="fromDate"
+                  required
+                  class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50 text-sm"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >सम्म (To)*</label
+                >
+                <input
+                  type="date"
+                  id="toDate"
+                  required
+                  class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50 text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                >कारण (Reason)*</label
+              >
+              <textarea
+                id="reason"
+                rows="3"
+                required
+                class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              id="submitBtn"
+              class="w-full bg-[#FF9933] hover:bg-[#e68a2e] text-white py-3 rounded-lg shadow font-bold text-lg mt-2"
+            >
+              पेस गर्नुहोस् (Apply)
+            </button>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+
+      let currentUserRole = null;
+      let currentUserEmail = null;
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        currentUserEmail = user.email;
+        currentUserRole = localStorage.getItem("gurukul_userRole");
+
+        const badge = document.getElementById("userRoleBadge");
+        badge.textContent = currentUserRole
+          ? currentUserRole.toUpperCase()
+          : "USER";
+        badge.classList.remove("hidden");
+
+        if (currentUserRole === "admin" || currentUserRole === "teacher") {
+          document.getElementById("listTitle").textContent =
+            "बिदाका निवेदनहरू (All Requests)";
+        } else {
+          document.getElementById("listTitle").textContent =
+            "मेरा निवेदनहरू (My Requests)";
+        }
+
+        // Set min date to today
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("fromDate").min = today;
+        document.getElementById("toDate").min = today;
+
+        loadLeaves();
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function goBack() {
+        if (currentUserRole === "parent")
+          window.location.href = "parent-portal.html";
+        else window.location.href = "parent-portal.html";
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      async function loadLeaves() {
+        const container = document.getElementById("leaveList");
+        try {
+          let query = db.collection("leave_requests");
+
+          // Fetch all and filter client side to avoid missing index errors in this preview
+          const snapshot = await query.get();
+          let docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+
+          if (currentUserRole === "parent") {
+            docs = docs.filter((d) => d.parentEmail === currentUserEmail);
+          }
+
+          docs.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+          if (docs.length === 0) {
+            container.innerHTML =
+              '<div class="py-12 bg-white/50 rounded-xl text-center shadow-inner opacity-60">कुनै रेकर्ड फेला परेन। (No requests found)</div>';
+            return;
+          }
+
+          let html = "";
+          docs.forEach((data) => {
+            const statusColor =
+              data.status === "Approved"
+                ? "bg-green-100 text-green-800 border-green-200"
+                : data.status === "Rejected"
+                  ? "bg-red-100 text-red-800 border-red-200"
+                  : "bg-yellow-100 text-yellow-800 border-yellow-200";
+
+            let statusText = data.status;
+            if (data.status === "Pending")
+              statusText = "निर्णय बाँकी (Pending)";
+            if (data.status === "Approved") statusText = "स्वीकृत (Approved)";
+            if (data.status === "Rejected") statusText = "अस्वीकृत (Rejected)";
+
+            let actionBtns = "";
+            if (
+              data.status === "Pending" &&
+              (currentUserRole === "admin" || currentUserRole === "teacher")
+            ) {
+              actionBtns = `
+                            <div class="mt-4 flex gap-3 border-t border-gray-100 pt-3">
+                                <button onclick="updateLeaveStatus('${data.id}', 'Approved')" class="px-4 py-1.5 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-bold shadow transition-colors">स्वीकृत (Approve)</button>
+                                <button onclick="updateLeaveStatus('${data.id}', 'Rejected')" class="px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded text-sm font-bold shadow transition-colors">अस्वीकृत (Reject)</button>
+                            </div>
+                        `;
+            }
+
+            // Calculate days
+            const fDate = new Date(data.fromDate);
+            const tDate = new Date(data.toDate);
+            const diffTime = Math.abs(tDate - fDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // inclusive
+
+            html += `
+                        <div class="bg-white p-5 rounded-2xl shadow-sm border hover:shadow-md transition-shadow relative">
+                            <div class="absolute top-4 right-4 px-2.5 py-1 rounded-full text-xs font-bold border ${statusColor}">
+                                ${statusText}
+                            </div>
+                            <h3 class="text-xl font-bold text-[#8B0000] mb-1 pr-28">${data.studentName}</h3>
+                            <div class="text-sm font-semibold text-[#FF9933] mb-3">
+                                ${data.fromDate} देखि ${data.toDate} सम्म (${diffDays} दिन)
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded border border-gray-100 text-[#3E1C00] text-sm">
+                                <strong>कारण (Reason):</strong><br/>
+                                <span class="opacity-80">${data.reason}</span>
+                            </div>
+                            
+                            ${
+                              data.parentEmail !== currentUserEmail &&
+                              (currentUserRole === "admin" ||
+                                currentUserRole === "teacher")
+                                ? `<div class="text-xs text-gray-400 mt-2">अभिभावक: ${data.parentEmail}</div>`
+                                : ""
+                            }
+                            
+                            ${actionBtns}
+                        </div>
+                    `;
+          });
+          container.innerHTML = html;
+        } catch (err) {
+          console.error(err);
+          container.innerHTML =
+            '<div class="text-center text-red-500 font-bold py-8">Error loading data.</div>';
+        }
+      }
+
+      document
+        .getElementById("leaveForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("submitBtn");
+          btn.disabled = true;
+          btn.innerHTML = "पेस हुँदैछ... (Applying...)";
+
+          try {
+            await db.collection("leave_requests").add({
+              studentName: document.getElementById("stuName").value,
+              fromDate: document.getElementById("fromDate").value,
+              toDate: document.getElementById("toDate").value,
+              reason: document.getElementById("reason").value,
+              status: "Pending",
+              parentEmail: currentUserEmail,
+              timestamp: Date.now(),
+            });
+            showToast("सफलतापूर्वक निवेदन दिइयो। (Applied Successfully)");
+            document.getElementById("leaveForm").reset();
+            loadLeaves();
+          } catch (error) {
+            console.error("Error adding document: ", error);
+            alert("Error: " + error.message);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = "पेस गर्नुहोस् (Apply)";
+          }
+        });
+
+      async function updateLeaveStatus(id, newStatus) {
+        if (
+          confirm(
+            `Are you sure you want to ${newStatus === "Approved" ? "Approve" : "Reject"} this request?`,
+          )
+        ) {
+          try {
+            await db.collection("leave_requests").doc(id).update({
+              status: newStatus,
+              actionBy: currentUserEmail,
+              actionAt: Date.now(),
+            });
+            showToast("अद्यावधिक भयो। (Updated)");
+            loadLeaves();
+          } catch (e) {
+            console.error(e);
+            alert("Error: " + e.message);
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

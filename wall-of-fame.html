@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - कीर्ति स्तम्भ (Wall of Fame)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(#ff993344 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      .gold-gradient {
+        background: linear-gradient(
+          135deg,
+          #ffd700 0%,
+          #ffa500 50%,
+          #ff8c00 100%
+        );
+      }
+      .medal-icon {
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <!-- Top Navigation -->
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="#"
+          onclick="goBack()"
+          class="hover:bg-white/10 p-1 rounded transition-colors"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg hidden sm:block">
+          कीर्ति स्तम्भ (Wall of Fame)
+        </h1>
+        <h1 class="font-bold text-lg sm:hidden">कीर्ति स्तम्भ</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <span
+          id="userRoleBadge"
+          class="hidden sm:inline-block px-2 py-1 bg-white/20 rounded text-xs font-bold border border-white/30"
+        ></span>
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl mx-auto w-full p-4 sm:p-6 z-10 relative">
+      <!-- Header & Admin Action -->
+      <div class="text-center mb-10">
+        <h2
+          class="text-4xl md:text-5xl font-black text-[#8B0000] mb-3"
+          style="text-shadow: 2px 2px 0px #ffd700"
+        >
+          कीर्ति स्तम्भ
+        </h2>
+        <p class="text-lg font-semibold text-[#FF9933]">
+          उत्कृष्ट विद्यार्थीहरू र उनीहरूका उपलब्धिहरू (Outstanding Achievers)
+        </p>
+        <div class="mt-4 flex justify-center">
+          <button
+            id="addFameBtn"
+            onclick="openFameModal()"
+            class="hidden bg-[#8B0000] hover:bg-[#a00000] text-white px-6 py-2.5 rounded-full font-bold shadow-xl border-2 border-[#FFD700] transition-transform active:scale-95 flex items-center gap-2"
+          >
+            <span>➕</span> नयाँ उपलब्धि थप्नुहोस् (Add Achievement)
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="fameGrid"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+      >
+        <div class="col-span-full py-12 text-center text-lg opacity-60 italic">
+          लोड हुँदैछ... (Loading...)
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Fame Modal (Admin/Teacher Only) -->
+    <div
+      id="fameModal"
+      class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border-t-8 border-[#FFD700]"
+      >
+        <div
+          class="bg-gradient-to-r from-[#8B0000] to-[#5a0000] p-4 font-bold text-white text-lg flex justify-between items-center"
+        >
+          <h2 class="flex items-center gap-2">
+            <span>🏆</span> नयाँ कीर्ति (New Achievement)
+          </h2>
+          <button
+            onclick="closeFameModal()"
+            class="text-white/70 hover:text-white transition-colors"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <form id="fameForm" class="p-5 space-y-4 bg-[#FFF8E7]">
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >विद्यार्थीको नाम (Student Name)*</label
+            >
+            <input
+              type="text"
+              id="studentName"
+              required
+              class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-white"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >उपलब्धिको शीर्षक (Achievement Title)*</label
+            >
+            <input
+              type="text"
+              id="achievementTitle"
+              placeholder="e.g., Best in Sanskrit Slokas"
+              required
+              class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-white"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >विवरण (Description)*</label
+            >
+            <textarea
+              id="achievementDesc"
+              rows="3"
+              required
+              class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-white"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >मिति/महिना (Date/Month)*</label
+            >
+            <input
+              type="text"
+              id="achievementDate"
+              placeholder="e.g., Magh 2080"
+              required
+              class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-white"
+            />
+          </div>
+
+          <div class="flex gap-3 pt-4">
+            <button
+              type="submit"
+              id="submitFameBtn"
+              class="flex-1 gold-gradient text-[#8B0000] py-2.5 rounded-lg font-black hover:opacity-90 transition-opacity shadow text-lg border-b-4 border-[#8B0000]/20"
+            >
+              सुरक्षित (Save)
+            </button>
+            <button
+              type="button"
+              onclick="closeFameModal()"
+              class="px-5 py-2.5 bg-gray-300 text-gray-800 rounded-lg font-bold hover:bg-gray-400 transition-colors"
+            >
+              रद्द (Cancel)
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+
+      let currentUserRole = null;
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        currentUserRole = localStorage.getItem("gurukul_userRole");
+
+        const badge = document.getElementById("userRoleBadge");
+        badge.textContent = currentUserRole
+          ? currentUserRole.toUpperCase()
+          : "USER";
+        badge.classList.remove("hidden");
+
+        if (currentUserRole === "admin" || currentUserRole === "teacher") {
+          document.getElementById("addFameBtn").classList.remove("hidden");
+        }
+
+        loadWallOfFame();
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function goBack() {
+        if (currentUserRole === "parent")
+          window.location.href = "parent-portal.html";
+        else window.location.href = "parent-portal.html";
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      async function loadWallOfFame() {
+        const grid = document.getElementById("fameGrid");
+        try {
+          // Using get() and client-side sorting to avoid requiring multiple indexes
+          const snapshot = await db.collection("wall_of_fame").get();
+          let entries = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          // Sort by timestamp desc
+          entries.sort((a, b) => b.timestamp - a.timestamp);
+
+          if (entries.length === 0) {
+            grid.innerHTML =
+              '<div class="col-span-full py-12 bg-white/50 rounded-xl text-center shadow-inner opacity-60">कुनै रेकर्ड फेला परेन। (No records found)</div>';
+            return;
+          }
+
+          let html = "";
+          entries.forEach((data) => {
+            let deleteBtn = "";
+            if (currentUserRole === "admin" || currentUserRole === "teacher") {
+              deleteBtn = `<button onclick="deleteEntry('${data.id}')" class="absolute top-2 right-2 bg-red-100/90 text-red-600 hover:bg-red-500 hover:text-white p-1.5 rounded-full backdrop-blur transition-colors z-10"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>`;
+            }
+
+            // A nice UI card layout
+            html += `
+                        <div class="relative bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border-2 border-[#FFD700]/30 hover:border-[#FF9933] hover:-translate-y-2 transition-all duration-300 overflow-hidden group">
+                            ${deleteBtn}
+                            
+                            <!-- Gold accent top bar -->
+                            <div class="h-2 w-full gold-gradient"></div>
+                            
+                            <div class="p-6 flex flex-col items-center text-center">
+                                <!-- Trophy/Medal Icon -->
+                                <div class="w-16 h-16 rounded-full gold-gradient p-1 mb-4 medal-icon flex items-center justify-center">
+                                    <div class="w-full h-full bg-[#8B0000] rounded-full flex items-center justify-center text-2xl">
+                                        🏆
+                                    </div>
+                                </div>
+                                
+                                <h3 class="text-2xl font-black text-[#8B0000] mb-1">${data.studentName}</h3>
+                                <div class="text-[#FF9933] font-bold text-sm uppercase tracking-wider mb-3">
+                                    ${data.achievementTitle}
+                                </div>
+                                <div class="bg-[#FFF8E7] rounded-lg p-3 w-full border border-orange-100 mb-4 h-24 overflow-y-auto custom-scrollbar">
+                                    <p class="text-sm font-medium opacity-80 italic">"${data.description}"</p>
+                                </div>
+                                
+                                <div class="mt-auto w-full pt-3 border-t border-gray-100 flex items-center justify-center text-xs text-gray-500 gap-1 font-bold">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    ${data.date}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+          });
+          grid.innerHTML = html;
+        } catch (err) {
+          console.error(err);
+          grid.innerHTML =
+            '<div class="col-span-full py-12 text-center text-red-500 font-bold">Error loading Wall of Fame.</div>';
+        }
+      }
+
+      // Modal Logic
+      function openFameModal() {
+        document.getElementById("fameForm").reset();
+        document.getElementById("fameModal").classList.remove("hidden");
+      }
+      function closeFameModal() {
+        document.getElementById("fameModal").classList.add("hidden");
+      }
+
+      document
+        .getElementById("fameForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("submitFameBtn");
+          btn.disabled = true;
+          btn.innerHTML = "कृपया पर्खनुहोस्...";
+
+          try {
+            await db.collection("wall_of_fame").add({
+              studentName: document.getElementById("studentName").value,
+              achievementTitle:
+                document.getElementById("achievementTitle").value,
+              description: document.getElementById("achievementDesc").value,
+              date: document.getElementById("achievementDate").value,
+              timestamp: Date.now(),
+            });
+            showToast("सफलतापूर्वक थपियो। (Added Successfully)");
+            closeFameModal();
+            loadWallOfFame();
+          } catch (err) {
+            console.error(err);
+            alert("Error: " + err.message);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = "सुरक्षित (Save)";
+          }
+        });
+
+      async function deleteEntry(id) {
+        if (
+          confirm(
+            "के तपाइँ मेटाउन पक्का हुनुहुन्छ? (Are you sure you want to delete?)",
+          )
+        ) {
+          try {
+            await db.collection("wall_of_fame").doc(id).delete();
+            showToast("हटाइयो। (Deleted)");
+            loadWallOfFame();
+          } catch (e) {
+            alert("Error: " + e.message);
+          }
+        }
+      }
+    </script>
+    <style>
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #ffd700;
+        border-radius: 4px;
+      }
+    </style>
+  </body>
+</html>

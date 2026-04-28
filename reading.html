@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - स्वाध्याय कक्ष (Reading Room)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-storage-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-color: #fff8e7;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FF9933' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+      .book-card {
+        border-left: 12px solid #8b0000;
+      }
+      .book-card.veda {
+        border-left-color: #ff9933;
+      }
+      .book-card.grammar {
+        border-left-color: #4caf50;
+      }
+      .book-card.purana {
+        border-left-color: #9c27b0;
+      }
+    </style>
+  </head>
+  <body class="text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16">
+    <!-- Top Navigation -->
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="#"
+          onclick="goBack()"
+          class="hover:bg-white/10 p-1 rounded transition-colors"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg hidden sm:block">
+          स्वाध्याय कक्ष (Reading Room / E-Library)
+        </h1>
+        <h1 class="font-bold text-lg sm:hidden">स्वाध्याय कक्ष</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <span
+          id="userRoleBadge"
+          class="hidden sm:inline-block px-2 py-1 bg-white/20 rounded text-xs font-bold border border-white/30"
+        ></span>
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 z-10 relative">
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Left Side: Library -->
+        <div class="w-full lg:w-3/4">
+          <div
+            class="flex justify-between items-end border-b-2 border-[#FFD700]/50 pb-3 mb-6"
+          >
+            <div>
+              <h2 class="text-3xl font-black text-[#8B0000]">
+                पुस्तकालय (Library)
+              </h2>
+              <p class="text-sm font-bold opacity-70 mt-1">
+                वेदादि ग्रन्थहरूको भण्डार (Repository of Vedic Texts)
+              </p>
+            </div>
+            <!-- Category Filter -->
+            <select
+              id="filterCategory"
+              onchange="loadBooks()"
+              class="px-3 py-2 bg-white border border-[#FFD700] rounded-lg text-sm font-bold shadow-sm focus:ring-2 focus:ring-[#FF9933] text-[#8B0000]"
+            >
+              <option value="all">सबै (All)</option>
+              <option value="Veda">वेद (Veda)</option>
+              <option value="Purana">पुराण (Purana)</option>
+              <option value="Grammar">व्याकरण (Sanskrit Grammar)</option>
+              <option value="Other">अन्य (Others)</option>
+            </select>
+          </div>
+
+          <div id="booksGrid" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div
+              class="col-span-full py-12 text-center text-lg opacity-60 italic"
+            >
+              लोड हुँदैछ... (Loading books...)
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Add Book Form (Admin/Teacher) -->
+        <div id="addBookSection" class="w-full lg:w-1/4 hidden">
+          <div
+            class="bg-white/95 backdrop-blur rounded-2xl shadow-xl border-t-8 border-[#FF9933] overflow-hidden sticky top-24"
+          >
+            <div
+              class="bg-[#FFF8E7] p-4 border-b border-[#FFD700]/30 text-[#8B0000] font-bold text-lg flex items-center gap-2"
+            >
+              <span>📚</span> नयाँ पुस्तक थप्नुहोस्
+            </div>
+            <form id="bookForm" class="p-5 space-y-4">
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >पुस्तकको नाम (Title)*</label
+                >
+                <input
+                  type="text"
+                  id="bTitle"
+                  required
+                  class="w-full px-3 py-2 rounded border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >लेखक/रचयिता (Author)*</label
+                >
+                <input
+                  type="text"
+                  id="bAuthor"
+                  required
+                  class="w-full px-3 py-2 rounded border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >वर्ग (Category)*</label
+                >
+                <select
+                  id="bCategory"
+                  required
+                  class="w-full px-3 py-2 rounded border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50 font-bold"
+                >
+                  <option value="Veda">वेद (Veda)</option>
+                  <option value="Purana">पुराण (Purana)</option>
+                  <option value="Grammar">व्याकरण (Grammar)</option>
+                  <option value="Other">अन्य (Other)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-[#8B0000] mb-1"
+                  >लिङ्क (Drive/Web Link)*</label
+                >
+                <input
+                  type="url"
+                  id="bLink"
+                  placeholder="https://"
+                  required
+                  class="w-full px-3 py-2 rounded border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50 text-sm"
+                />
+                <p class="text-[10px] text-gray-500 mt-1">
+                  Provide a link to PDF, Drive, or webpage.
+                </p>
+              </div>
+
+              <button
+                type="submit"
+                id="saveBtn"
+                class="w-full bg-[#8B0000] hover:bg-[#a00000] text-white py-3 rounded shadow font-bold text-lg mt-2"
+              >
+                प्रकाशित गर्नुहोस (Publish)
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+
+      let currentUserRole = null;
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        currentUserRole = localStorage.getItem("gurukul_userRole");
+
+        const badge = document.getElementById("userRoleBadge");
+        badge.textContent = currentUserRole
+          ? currentUserRole.toUpperCase()
+          : "USER";
+        badge.classList.remove("hidden");
+
+        if (currentUserRole === "admin" || currentUserRole === "teacher") {
+          document.getElementById("addBookSection").classList.remove("hidden");
+          document
+            .querySelector(".lg\\:w-3\\/4")
+            ?.classList.replace("lg:w-3/4", "lg:w-3/4"); // remain 3/4 if admin
+        } else {
+          document
+            .querySelector(".lg\\:w-3\\/4")
+            ?.classList.replace("lg:w-3/4", "w-full"); // expand if parent/student
+        }
+
+        loadBooks();
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function goBack() {
+        if (currentUserRole === "parent")
+          window.location.href = "parent-portal.html";
+        else window.location.href = "parent-portal.html";
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      async function loadBooks() {
+        const grid = document.getElementById("booksGrid");
+        const filter = document.getElementById("filterCategory").value;
+
+        try {
+          const snapshot = await db.collection("library").get();
+          let books = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+
+          // Sort by time
+          books.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+          if (filter !== "all") {
+            books = books.filter((b) => b.category === filter);
+          }
+
+          if (books.length === 0) {
+            grid.innerHTML =
+              '<div class="col-span-full py-12 bg-white/50 rounded-xl text-center shadow-inner opacity-60 font-bold">कुनै पुस्तक भेटिएन। (No books found in this category)</div>';
+            return;
+          }
+
+          let html = "";
+          books.forEach((b) => {
+            let deleteBtn = "";
+            if (currentUserRole === "admin" || currentUserRole === "teacher") {
+              deleteBtn = `<button onclick="deleteBook('${b.id}')" class="absolute top-2 right-2 text-red-300 hover:text-red-600 transition-colors bg-white/80 rounded-full p-1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>`;
+            }
+
+            // Determine Class for color
+            let cssClass = "book-card";
+            let icon = "📖";
+            if (b.category === "Veda") {
+              cssClass += " veda";
+              icon = "🕉️";
+            }
+            if (b.category === "Grammar") {
+              cssClass += " grammar";
+              icon = "✍️";
+            }
+            if (b.category === "Purana") {
+              cssClass += " purana";
+              icon = "📜";
+            }
+
+            html += `
+                        <div class="bg-white rounded-r-2xl rounded-l-md shadow hover:shadow-xl transition-all p-5 relative flex flex-col ${cssClass} border border-gray-100">
+                            ${deleteBtn}
+                            <div class="flex items-start gap-4 mb-4">
+                                <div class="text-4xl opacity-80">${icon}</div>
+                                <div>
+                                    <h3 class="font-bold text-xl text-[#8B0000] mb-1 leading-tight pr-6">${b.title}</h3>
+                                    <p class="text-sm font-semibold text-[#FF9933]">रचयिता: ${b.author}</p>
+                                </div>
+                            </div>
+                            <div class="mt-auto flex justify-between items-center border-t border-gray-100 pt-3">
+                                <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-bold">${b.category}</span>
+                                <a href="${b.link}" target="_blank" class="bg-[#FF9933] hover:bg-[#e68a2e] text-white px-4 py-1.5 rounded font-bold text-sm shadow inline-flex items-center gap-1 transition-colors">
+                                    पढ्नुहोस् <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+                                </a>
+                            </div>
+                        </div>
+                    `;
+          });
+          grid.innerHTML = html;
+        } catch (err) {
+          console.error(err);
+          grid.innerHTML =
+            '<div class="col-span-full py-12 text-center text-red-500 font-bold">Error loading library.</div>';
+        }
+      }
+
+      document
+        .getElementById("bookForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("saveBtn");
+          btn.disabled = true;
+          btn.textContent = "Saving...";
+
+          try {
+            await db.collection("library").add({
+              title: document.getElementById("bTitle").value,
+              author: document.getElementById("bAuthor").value,
+              category: document.getElementById("bCategory").value,
+              link: document.getElementById("bLink").value,
+              timestamp: Date.now(),
+            });
+            showToast("पुस्तक थपियो (Book Added)");
+            document.getElementById("bookForm").reset();
+            loadBooks();
+          } catch (err) {
+            alert(err.message);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = "प्रकाशित गर्नुहोस (Publish)";
+          }
+        });
+
+      async function deleteBook(id) {
+        if (confirm("Are you sure?")) {
+          await db.collection("library").doc(id).delete();
+          showToast("हटाइयो (Deleted)");
+          loadBooks();
+        }
+      }
+    </script>
+  </body>
+</html>

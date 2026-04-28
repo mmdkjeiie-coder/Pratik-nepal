@@ -1,0 +1,694 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - वैदिक हाजिरीजवाफ (Vedic Quiz)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(#ff993333 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+      .option-btn:hover {
+        border-color: #ff9933;
+        background-color: #fff8e7;
+      }
+      .option-selected {
+        border-color: #ff9933;
+        background-color: #ff9933;
+        color: white;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <!-- Top Navigation -->
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="#"
+          onclick="goBack()"
+          class="hover:bg-white/10 p-1 rounded transition-colors"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg hidden sm:block">
+          वैदिक हाजिरीजवाफ (Vedic Quiz)
+        </h1>
+        <h1 class="font-bold text-lg sm:hidden">हाजिरीजवाफ</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <span
+          id="userRoleBadge"
+          class="hidden sm:inline-block px-2 py-1 bg-white/20 rounded text-xs font-bold border border-white/30"
+        ></span>
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main
+      class="flex-1 max-w-4xl mx-auto w-full p-4 sm:p-6 z-10 relative flex flex-col justify-center min-h-[calc(100vh-80px)]"
+    >
+      <!-- Home State -->
+      <div
+        id="homeState"
+        class="bg-white/90 backdrop-blur rounded-2xl shadow-2xl border-t-8 border-[#FF9933] p-8 text-center max-w-2xl mx-auto w-full"
+      >
+        <div class="text-6xl mb-4">🕉️</div>
+        <h2 class="text-3xl font-black text-[#8B0000] mb-2">
+          वैदिक ज्ञान परीक्षा
+        </h2>
+        <p class="text-gray-600 mb-8 font-medium">
+          Test your knowledge of the Vedas, Sanskrit, and Gurukul Traditions.
+        </p>
+
+        <button
+          id="startQuizBtn"
+          onclick="startQuiz()"
+          class="bg-[#8B0000] hover:bg-[#a00000] text-white px-8 py-4 rounded-full font-bold text-xl transition-transform active:scale-95 shadow-lg border-b-4 border-[#FF9933] w-full max-w-xs mx-auto block mb-4"
+        >
+          सुरु गर्नुहोस् (Start Quiz)
+        </button>
+        <div class="flex flex-col sm:flex-row justify-center gap-4 mt-6">
+          <button
+            onclick="viewLeaderboard()"
+            class="text-[#FF9933] font-bold hover:underline"
+          >
+            लिडरबोर्ड हेर्नुहोस् (Leaderboard)
+          </button>
+          <button
+            id="addQuesBtn"
+            onclick="openAddQuestionModal()"
+            class="hidden text-[#8B0000] font-bold hover:underline"
+          >
+            प्रश्न थप्नुहोस् (Add Question)
+          </button>
+        </div>
+      </div>
+
+      <!-- Quiz state -->
+      <div
+        id="quizState"
+        class="hidden bg-white/95 backdrop-blur rounded-2xl shadow-2xl border-2 border-[#FFD700] p-6 sm:p-10 max-w-2xl mx-auto w-full"
+      >
+        <div
+          class="flex justify-between items-center mb-6 text-sm font-bold text-gray-500 border-b border-gray-200 pb-2"
+        >
+          <span id="questionCounter">प्रश्न १ / ५</span>
+          <span class="flex items-center gap-1 text-[#8B0000]"
+            ><svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span id="timer">००:३०</span></span
+          >
+        </div>
+
+        <h3
+          id="questionText"
+          class="text-xl sm:text-2xl font-bold text-[#3E1C00] mb-8 leading-relaxed"
+        ></h3>
+
+        <div id="optionsContainer" class="space-y-3 mb-8">
+          <!-- Options injected via JS -->
+        </div>
+
+        <div class="flex justify-end">
+          <button
+            id="nextBtn"
+            onclick="nextQuestion()"
+            disabled
+            class="bg-[#FF9933] text-white px-8 py-3 rounded-lg font-bold shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#e68a2e]"
+          >
+            अर्को (Next) ➔
+          </button>
+        </div>
+      </div>
+
+      <!-- Results state -->
+      <div
+        id="resultState"
+        class="hidden bg-white/90 backdrop-blur rounded-2xl shadow-2xl border-t-8 border-[#8B0000] p-8 text-center max-w-xl mx-auto w-full"
+      >
+        <div class="text-6xl mb-4" id="resultIcon">🏆</div>
+        <h2 class="text-3xl font-black text-[#8B0000] mb-2">
+          परीक्षा सम्पन्न !
+        </h2>
+        <p class="text-gray-600 mb-6 font-medium">
+          तपाईंको नतिजा (Your Score):
+        </p>
+
+        <div
+          class="text-5xl font-black text-[#FF9933] mb-8"
+          id="finalScoreDisplay"
+        >
+          ५ / ५
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <button
+            onclick="goHome()"
+            class="bg-gray-200 text-gray-800 px-6 py-3 rounded-lg font-bold hover:bg-gray-300"
+          >
+            मुख्य मेनु (Home)
+          </button>
+          <button
+            onclick="viewLeaderboard()"
+            class="bg-[#8B0000] text-white px-6 py-3 rounded-lg font-bold hover:bg-[#a00000] shadow-md border-b-4 border-[#FF9933]"
+          >
+            लिडरबोर्ड (Leaderboard)
+          </button>
+        </div>
+      </div>
+
+      <!-- Leaderboard state -->
+      <div
+        id="leaderboardState"
+        class="hidden bg-white/95 backdrop-blur rounded-2xl shadow-2xl border-t-4 border-[#FFD700] p-6 max-w-2xl mx-auto w-full"
+      >
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-2xl font-bold text-[#8B0000]">
+            लिडरबोर्ड (Leaderboard)
+          </h2>
+          <button
+            onclick="goHome()"
+            class="text-gray-500 hover:text-black font-bold text-sm"
+          >
+            ✖ बन्द (Close)
+          </button>
+        </div>
+
+        <div class="max-h-[50vh] overflow-y-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#FFF8E7] text-[#8B0000]">
+                <th class="p-3 border-b-2 border-orange-200">र्याङ्क (Rank)</th>
+                <th class="p-3 border-b-2 border-orange-200">नाम (Name)</th>
+                <th class="p-3 border-b-2 border-orange-200 text-right">
+                  अंक (Score)
+                </th>
+              </tr>
+            </thead>
+            <tbody id="leaderboardBody">
+              <tr>
+                <td colspan="3" class="text-center p-4">लोड हुँदैछ...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Question Modal (Admin) -->
+    <div
+      id="addQuesModal"
+      class="fixed inset-0 bg-black/60 hidden z-[100] flex items-center justify-center p-4 backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border-t-8 border-[#FFD700]"
+      >
+        <div
+          class="bg-[#FFF8E7] p-4 font-bold text-[#8B0000] text-lg flex justify-between items-center border-b border-[#FFD700]/50"
+        >
+          <h2>नयाँ प्रश्न थप्नुहोस्</h2>
+          <button
+            onclick="closeAddQuestionModal()"
+            class="text-[#8B0000] hover:text-red-500"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <form id="addQuesForm" class="p-5 space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >प्रश्न (Question)*</label
+            >
+            <textarea
+              id="qText"
+              required
+              rows="2"
+              class="w-full px-3 py-2 rounded border border-gray-300"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >विकल्प १ (Option 1 - Correct)*</label
+            >
+            <input
+              type="text"
+              id="opt1"
+              required
+              class="w-full px-3 py-2 rounded border border-green-500 focus:ring-green-500"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >विकल्प २ (Option 2)*</label
+            >
+            <input
+              type="text"
+              id="opt2"
+              required
+              class="w-full px-3 py-2 rounded border border-gray-300"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >विकल्प ३ (Option 3)*</label
+            >
+            <input
+              type="text"
+              id="opt3"
+              required
+              class="w-full px-3 py-2 rounded border border-gray-300"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >विकल्प ४ (Option 4)*</label
+            >
+            <input
+              type="text"
+              id="opt4"
+              required
+              class="w-full px-3 py-2 rounded border border-gray-300"
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="saveQBtn"
+            class="w-full bg-[#8B0000] text-white py-2.5 rounded font-bold hover:bg-[#a00000]"
+          >
+            सुरक्षित गर्नुहोस्
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+
+      let currentUserRole = null;
+      let currentUserEmail = null;
+
+      // Default Questions fallback
+      const defaultQuestions = [
+        {
+          text: "वेद कति ओटा छन्? (How many Vedas are there?)",
+          options: ["४ (4)", "३ (3)", "५ (5)", "१८ (18)"],
+          answer: "४ (4)",
+        },
+        {
+          text: "महाभारतका रचयिता को हुन्? (Who is the author of Mahabharata?)",
+          options: [
+            "वेदव्यास (Vedavyasa)",
+            "वाल्मीकि (Valmiki)",
+            "तुलसीदास (Tulsidas)",
+            "कालिदास (Kalidasa)",
+          ],
+          answer: "वेदव्यास (Vedavyasa)",
+        },
+        {
+          text: "संस्कृत वर्णमालामा कति वटा स्वर वर्ण (Vowels) हुन्छन्?",
+          options: ["१३ (13)", "११ (11)", "३३ (33)", "५ (5)"],
+          answer: "१३ (13)",
+        },
+        {
+          text: "श्रीमद्भगवद्गीता कुन ग्रन्थको एक अंश हो?",
+          options: ["महाभारत", "रामायण", "उपनिषद", "ऋग्वेद"],
+          answer: "महाभारत",
+        },
+        {
+          text: "सबैभन्दा पुरानो वेद कुन हो?",
+          options: ["ऋग्वेद", "सामवेद", "यजुर्वेद", "अथर्ववेद"],
+          answer: "ऋग्वेद",
+        },
+      ];
+
+      let questions = [];
+      let currentQuestionIndex = 0;
+      let score = 0;
+      let selectedOption = null;
+      let timerInterval = null;
+      let timeLeft = 30;
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        currentUserEmail = user.email;
+        currentUserRole = localStorage.getItem("gurukul_userRole");
+
+        const badge = document.getElementById("userRoleBadge");
+        badge.textContent = currentUserRole
+          ? currentUserRole.toUpperCase()
+          : "USER";
+        badge.classList.remove("hidden");
+
+        if (currentUserRole === "admin" || currentUserRole === "teacher") {
+          document.getElementById("addQuesBtn").classList.remove("hidden");
+        }
+
+        fetchQuestions();
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function goBack() {
+        if (currentUserRole === "parent")
+          window.location.href = "parent-portal.html";
+        else window.location.href = "parent-portal.html";
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      function switchState(stateId) {
+        ["homeState", "quizState", "resultState", "leaderboardState"].forEach(
+          (id) => {
+            document.getElementById(id).classList.add("hidden");
+          },
+        );
+        document.getElementById(stateId).classList.remove("hidden");
+      }
+
+      function goHome() {
+        switchState("homeState");
+      }
+
+      async function fetchQuestions() {
+        try {
+          const snap = await db.collection("quiz_questions").get();
+          if (snap.empty) {
+            questions = [...defaultQuestions];
+          } else {
+            questions = snap.docs.map((doc) => doc.data());
+          }
+        } catch (e) {
+          console.error("Using fallback questions.");
+          questions = [...defaultQuestions];
+        }
+      }
+
+      // Shuffle Array
+      function shuffle(array) {
+        let currentIndex = array.length,
+          randomIndex;
+        while (currentIndex != 0) {
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+          [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex],
+            array[currentIndex],
+          ];
+        }
+        return array;
+      }
+
+      function startQuiz() {
+        // Pick random 5 questions (or max available)
+        shuffle(questions);
+        questions = questions.slice(0, 5);
+
+        currentQuestionIndex = 0;
+        score = 0;
+        switchState("quizState");
+        loadQuestion();
+      }
+
+      function loadQuestion() {
+        selectedOption = null;
+        document.getElementById("nextBtn").disabled = true;
+
+        const q = questions[currentQuestionIndex];
+        document.getElementById("questionCounter").textContent =
+          `प्रश्न ${currentQuestionIndex + 1} / ${questions.length}`;
+        document.getElementById("questionText").textContent = q.text;
+
+        const optsContainer = document.getElementById("optionsContainer");
+        optsContainer.innerHTML = "";
+
+        let shufOpts = shuffle([...q.options]);
+
+        shufOpts.forEach((opt) => {
+          const btn = document.createElement("button");
+          btn.className =
+            "w-full text-left p-4 rounded-lg border-2 border-gray-200 font-bold text-[#3E1C00] transition-colors option-btn";
+          btn.textContent = opt;
+          btn.onclick = () => selectOption(btn, opt);
+          optsContainer.appendChild(btn);
+        });
+
+        startTimer();
+      }
+
+      function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 30;
+        updateTimerDisplay();
+
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          updateTimerDisplay();
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            // Force next Question if time runs out
+            nextQuestion(true);
+          }
+        }, 1000);
+      }
+
+      function updateTimerDisplay() {
+        // e.g. 00:30 (Nepalese numeral formatting ideally, but keeping it simple)
+        document.getElementById("timer").textContent =
+          `००:${timeLeft < 10 ? "०" + timeLeft : timeLeft}`;
+      }
+
+      function selectOption(btnRef, opt) {
+        selectedOption = opt;
+        const btns = document.getElementById("optionsContainer").children;
+        for (let b of btns) {
+          b.classList.remove("option-selected", "bg-[#FF9933]", "text-white");
+        }
+        btnRef.classList.add("option-selected");
+        document.getElementById("nextBtn").disabled = false;
+      }
+
+      async function nextQuestion(timeOut = false) {
+        clearInterval(timerInterval);
+
+        const q = questions[currentQuestionIndex];
+        if (!timeOut && selectedOption === q.answer) {
+          score++;
+        }
+
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+          loadQuestion();
+        } else {
+          finishQuiz();
+        }
+      }
+
+      async function finishQuiz() {
+        switchState("resultState");
+        document.getElementById("finalScoreDisplay").textContent =
+          `${score} / ${questions.length}`;
+
+        if (score === questions.length)
+          document.getElementById("resultIcon").textContent = "🤩";
+        else if (score >= questions.length / 2)
+          document.getElementById("resultIcon").textContent = "👍";
+        else document.getElementById("resultIcon").textContent = "🤔";
+
+        // Save to Leaderboard
+        const studentName =
+          prompt(
+            "लिडरबोर्डको लागि आफ्नो नाम प्रविष्ट गर्नुहोस् (Enter your name for Leaderboard):",
+          ) || currentUserEmail.split("@")[0];
+        try {
+          await db.collection("quiz_scores").add({
+            name: studentName,
+            email: currentUserEmail,
+            score: score,
+            total: questions.length,
+            timestamp: Date.now(),
+          });
+        } catch (e) {
+          console.error("Score saving failed", e);
+        }
+      }
+
+      async function viewLeaderboard() {
+        switchState("leaderboardState");
+        const tbody = document.getElementById("leaderboardBody");
+        tbody.innerHTML =
+          '<tr><td colspan="3" class="text-center p-4">लोड हुँदैछ...</td></tr>';
+
+        try {
+          // Get all and sort by score DESC, then timestamp ASC
+          const snap = await db.collection("quiz_scores").get();
+          let records = snap.docs.map((d) => d.data());
+
+          records.sort((a, b) => {
+            if (b.score !== a.score) return b.score - a.score;
+            return a.timestamp - b.timestamp;
+          });
+
+          if (records.length === 0) {
+            tbody.innerHTML =
+              '<tr><td colspan="3" class="text-center p-4 text-gray-500">कुनै रेकर्ड फेला परेन।</td></tr>';
+            return;
+          }
+
+          let html = "";
+          records.forEach((r, i) => {
+            let rankBadge = i + 1;
+            if (i === 0) rankBadge = "🥇";
+            if (i === 1) rankBadge = "🥈";
+            if (i === 2) rankBadge = "🥉";
+
+            html += `
+                        <tr class="border-b border-gray-100 hover:bg-orange-50/50">
+                            <td class="p-3 font-bold text-lg">${rankBadge}</td>
+                            <td class="p-3 font-bold text-[#3E1C00]">${r.name}</td>
+                            <td class="p-3 font-bold text-[#FF9933] text-right">${r.score} / ${r.total}</td>
+                        </tr>
+                    `;
+          });
+          tbody.innerHTML = html;
+        } catch (e) {
+          console.error(e);
+          tbody.innerHTML =
+            '<tr><td colspan="3" class="text-center p-4 text-red-500">Error loading.</td></tr>';
+        }
+      }
+
+      // Add Question functions
+      function openAddQuestionModal() {
+        document.getElementById("addQuesForm").reset();
+        document.getElementById("addQuesModal").classList.remove("hidden");
+      }
+      function closeAddQuestionModal() {
+        document.getElementById("addQuesModal").classList.add("hidden");
+      }
+
+      document
+        .getElementById("addQuesForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("saveQBtn");
+          btn.disabled = true;
+
+          const qText = document.getElementById("qText").value;
+          const opt1 = document.getElementById("opt1").value; // answer
+          const opt2 = document.getElementById("opt2").value;
+          const opt3 = document.getElementById("opt3").value;
+          const opt4 = document.getElementById("opt4").value;
+
+          try {
+            await db.collection("quiz_questions").add({
+              text: qText,
+              options: [opt1, opt2, opt3, opt4],
+              answer: opt1,
+            });
+            showToast("प्रश्न थपियो!");
+            closeAddQuestionModal();
+            fetchQuestions(); // Reload list
+          } catch (err) {
+            alert(err.message);
+          } finally {
+            btn.disabled = false;
+          }
+        });
+    </script>
+  </body>
+</html>

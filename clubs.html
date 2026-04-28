@@ -1,0 +1,754 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      श्री कृष्ण द्वैपायन गुरुकुल - विद्यार्थी समूह (Clubs / Shakha)
+    </title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-image: radial-gradient(#ff993322 1px, transparent 1px);
+        background-size: 24px 24px;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col pt-16"
+  >
+    <!-- Top Navigation -->
+    <nav
+      class="fixed top-0 left-0 right-0 bg-[#8B0000] text-white shadow-lg z-50 px-4 py-3 flex justify-between items-center border-b-4 border-[#FF9933]"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="#"
+          onclick="goBack()"
+          class="hover:bg-white/10 p-1 rounded transition-colors"
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+        </a>
+        <div
+          class="w-10 h-10 bg-[#FF9933] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-bold text-xl"
+        >
+          ॐ
+        </div>
+        <h1 class="font-bold text-lg hidden sm:block">
+          विद्यार्थी समूह / शाखा (Student Clubs)
+        </h1>
+        <h1 class="font-bold text-lg sm:hidden">समूह (Clubs)</h1>
+      </div>
+      <div class="flex items-center gap-2">
+        <span
+          id="userRoleBadge"
+          class="hidden sm:inline-block px-2 py-1 bg-white/20 rounded text-xs font-bold border border-white/30"
+        ></span>
+        <button
+          onclick="logout()"
+          class="px-3 py-1.5 bg-white/10 hover:bg-white/20 rounded border border-white/30 transition-all text-sm font-medium"
+        >
+          लगआउट
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-4 sm:p-6 z-10 relative">
+      <!-- Header & Admin Action -->
+      <div
+        class="flex justify-between items-end border-b-2 border-[#FFD700]/50 pb-3 mb-6"
+      >
+        <div>
+          <h2 class="text-2xl font-bold text-[#8B0000]">
+            गुरुकुलका शाखाहरू (Student Clubs)
+          </h2>
+          <p class="text-sm opacity-80 mt-1">
+            तपाईंले रुचि राखेको समूहमा जोडिनुहोस् र अतिरिक्त क्रियाकलापमा भाग
+            लिनुहोस्।
+          </p>
+        </div>
+        <button
+          id="addClubBtn"
+          onclick="openAddClubModal()"
+          class="hidden bg-[#FF9933] hover:bg-[#e68a2e] text-white px-4 py-2 rounded-lg font-bold shadow-md transition-transform active:scale-95 flex items-center gap-2"
+        >
+          <span>➕</span> नयाँ समूह (Add Club)
+        </button>
+      </div>
+
+      <div
+        id="clubsGrid"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      >
+        <div class="col-span-full py-12 text-center text-lg opacity-60 italic">
+          शाखाहरू लोड हुँदैछ... (Loading Clubs...)
+        </div>
+      </div>
+    </main>
+
+    <!-- Add Club Modal (Admin Only) -->
+    <div
+      id="addClubModal"
+      class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border-t-8 border-[#FF9933]"
+      >
+        <div
+          class="bg-[#FFF8E7] p-4 font-bold text-[#8B0000] text-lg flex justify-between items-center border-b border-[#FFD700]/50"
+        >
+          <h2>नयाँ समूह विवरण (New Club Details)</h2>
+          <button
+            onclick="closeAddClubModal()"
+            class="text-[#8B0000] hover:text-red-500"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <form id="clubForm" class="p-5 space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >समूहको नाम (Club Name)*</label
+            >
+            <input
+              type="text"
+              id="clubName"
+              required
+              class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >प्रतीक (Emoji Icon)*</label
+            >
+            <input
+              type="text"
+              id="clubIcon"
+              required
+              value="🎯"
+              class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50 text-xl text-center"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >शिक्षक / प्रमुख (Teacher In-charge)*</label
+            >
+            <input
+              type="text"
+              id="clubTeacher"
+              required
+              class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-[#8B0000] mb-1"
+              >विवरण (Description)*</label
+            >
+            <textarea
+              id="clubDesc"
+              rows="3"
+              required
+              class="w-full px-3 py-2 rounded-lg border border-[#FFD700]/50 focus:ring-2 focus:ring-[#FF9933] bg-[#FFF8E7]/50"
+            ></textarea>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <button
+              type="submit"
+              id="submitClubBtn"
+              class="flex-1 bg-[#8B0000] text-white py-2.5 rounded-lg font-bold hover:bg-[#a00000] transition-colors shadow"
+            >
+              सुरक्षित गर्नुहोस् (Save)
+            </button>
+            <button
+              type="button"
+              onclick="closeAddClubModal()"
+              class="px-5 py-2.5 bg-gray-200 text-gray-800 rounded-lg font-bold hover:bg-gray-300 transition-colors"
+            >
+              रद्द (Cancel)
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- View Club & Enroll/Members Modal -->
+    <div
+      id="membersModal"
+      class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border-t-8 border-[#8B0000] flex flex-col"
+      >
+        <div
+          class="bg-[#FFF8E7] p-4 font-bold text-[#8B0000] text-xl flex justify-between items-center border-b border-[#FFD700]/50"
+        >
+          <div class="flex items-center gap-3">
+            <span id="clubModalIcon" class="text-3xl">🎯</span>
+            <h2 id="membersModalTitle">समूह (Club)</h2>
+          </div>
+          <button
+            onclick="closeMembersModal()"
+            class="text-[#8B0000] hover:text-red-500 rounded p-1"
+          >
+            <svg
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="flex border-b border-[#FFD700]/30 bg-white" id="clubTabs">
+          <button
+            onclick="switchTab('activities')"
+            id="tab-activities"
+            class="flex-1 py-3 text-center font-bold text-[#8B0000] border-b-4 border-[#FF9933] bg-orange-50 transition-colors"
+          >
+            सूचना/क्रियाकलाप (Notice/Activity)
+          </button>
+          <button
+            onclick="switchTab('members')"
+            id="tab-members"
+            class="flex-1 py-3 text-center font-bold text-gray-500 hover:text-[#8B0000] hover:bg-gray-50 border-b-4 border-transparent transition-colors"
+          >
+            सदस्यहरू (Members) & भर्ना
+          </button>
+        </div>
+
+        <div class="p-5 overflow-y-auto flex-1 bg-[#FFF8E7]/30">
+          <!-- Activities Tab -->
+          <div id="activitiesTabContent">
+            <div
+              id="adminPostActivity"
+              class="hidden mb-6 bg-white p-4 rounded-xl border border-[#FFD700]/50 shadow-sm"
+            >
+              <h3 class="font-bold text-[#8B0000] mb-3 text-sm">
+                नयाँ सूचना हाल्नुहोस् (Post Notice)
+              </h3>
+              <textarea
+                id="activityText"
+                placeholder="विद्यार्थीहरूको लागि सन्देश वा सूचना..."
+                rows="2"
+                class="w-full px-3 py-2 rounded-lg border border-gray-200 focus:border-[#FF9933] focus:ring-1 focus:ring-[#FF9933] mb-3"
+              ></textarea>
+              <div class="flex justify-end">
+                <button
+                  onclick="postActivity()"
+                  class="bg-[#FF9933] text-white px-4 py-2 rounded font-bold hover:bg-[#e68a2e] shadow-sm text-sm"
+                >
+                  पोस्ट गर्नुहोस् (Post)
+                </button>
+              </div>
+            </div>
+
+            <h3
+              class="font-bold text-[#8B0000] mb-3 text-sm flex items-center gap-2"
+            >
+              <span>📢</span> भर्खरका सूचनाहरू (Recent Updates)
+            </h3>
+            <div id="activitiesList" class="space-y-4">
+              <div class="text-center py-6 opacity-60 text-sm">
+                लोड हुँदैछ...
+              </div>
+            </div>
+          </div>
+
+          <!-- Members Tab -->
+          <div id="membersTabContent" class="hidden">
+            <!-- Parent View: Form to enroll child -->
+            <div
+              id="parentEnrollSection"
+              class="hidden mb-6 bg-white p-5 border-2 border-orange-200 rounded-xl shadow-sm"
+            >
+              <h3
+                class="font-bold text-[#8B0000] mb-3 text-lg flex items-center gap-2"
+              >
+                <span>✅</span> यस समूहमा भर्ना हुनुहोस् (Join Club)
+              </h3>
+              <p class="text-sm opacity-80 mb-4">
+                आफ्नो विद्यार्थीको नाम राखेर भर्ना गर्नुहोस्।
+              </p>
+              <input type="hidden" id="enrollClubId" />
+              <input type="hidden" id="enrollClubName" />
+              <div class="flex gap-2">
+                <input
+                  type="text"
+                  id="enrollStudentName"
+                  placeholder="विद्यार्थीको नाम (Student Name)"
+                  required
+                  class="flex-1 px-4 py-2 rounded-lg border border-[#FFD700]/50 bg-gray-50 focus:ring-2 focus:ring-[#FF9933]"
+                />
+                <button
+                  onclick="enrollStudent()"
+                  class="bg-[#8B0000] text-white px-6 py-2 rounded-lg font-bold hover:bg-[#a00000] shadow"
+                >
+                  भर्ना (Register)
+                </button>
+              </div>
+            </div>
+
+            <!-- List of members -->
+            <div>
+              <h3
+                class="font-bold text-[#8B0000] mb-3 text-sm flex items-center gap-2"
+              >
+                <span>👥</span> भर्ना भएका सदस्यहरू (Enrolled Students)
+              </h3>
+              <ul id="membersList" class="space-y-2">
+                <li
+                  class="text-sm opacity-60 py-4 text-center border rounded-lg"
+                >
+                  लोड हुँदैछ...
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div
+      id="toast"
+      class="fixed bottom-5 right-5 transform translate-y-20 opacity-0 transition-all duration-300 bg-white text-[#3E1C00] px-6 py-4 rounded-xl shadow-2xl border-l-4 border-[#FF9933] font-bold z-[150] flex items-center gap-3"
+    >
+      <span id="toastMsg">Message</span>
+    </div>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+      if (db._databaseId) {
+        db._databaseId.database =
+          "ai-studio-9d608cb5-2a97-43ab-8728-40f0e479c9d2";
+      }
+
+      let currentUserRole = null;
+      let currentUserEmail = null;
+
+      auth.onAuthStateChanged((user) => {
+        if (!user) {
+          window.location.href = "index.html";
+          return;
+        }
+        currentUserEmail = user.email;
+        currentUserRole = localStorage.getItem("gurukul_userRole");
+
+        const badge = document.getElementById("userRoleBadge");
+        badge.textContent = currentUserRole
+          ? currentUserRole.toUpperCase()
+          : "USER";
+        badge.classList.remove("hidden");
+
+        if (currentUserRole === "admin" || currentUserRole === "teacher") {
+          document.getElementById("addClubBtn").classList.remove("hidden");
+        }
+
+        loadClubs();
+      });
+
+      function logout() {
+        auth.signOut().then(() => (window.location.href = "index.html"));
+      }
+
+      function goBack() {
+        if (currentUserRole === "parent")
+          window.location.href = "parent-portal.html";
+        else window.location.href = "parent-portal.html";
+      }
+
+      function showToast(msg) {
+        const toast = document.getElementById("toast");
+        toast.querySelector("#toastMsg").textContent = msg;
+        toast.classList.remove("translate-y-20", "opacity-0");
+        setTimeout(
+          () => toast.classList.add("translate-y-20", "opacity-0"),
+          3000,
+        );
+      }
+
+      async function loadClubs() {
+        const grid = document.getElementById("clubsGrid");
+        grid.innerHTML =
+          '<div class="col-span-full py-12 text-center text-lg opacity-60 italic">शाखाहरू लोड हुँदैछ... (Loading Clubs...)</div>';
+
+        try {
+          const snapshot = await db
+            .collection("clubs")
+            .orderBy("parsedCreatedAt", "desc")
+            .get()
+            .catch(async () => {
+              // Fallback if index fails
+              return await db.collection("clubs").get();
+            });
+
+          if (snapshot.empty) {
+            grid.innerHTML =
+              '<div class="col-span-full py-12 bg-white/50 rounded-xl text-center shadow-inner opacity-60">कुनै पनि समूह फेला परेन। (No clubs found)</div>';
+            return;
+          }
+
+          let html = "";
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            let adminBtn = "";
+
+            if (currentUserRole === "admin" || currentUserRole === "teacher") {
+              adminBtn = `<button onclick="deleteClub('${doc.id}')" class="bg-red-100 text-red-600 hover:bg-red-500 hover:text-white px-3 py-1.5 rounded transition-colors" title="Delete Club"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button>`;
+            }
+
+            html += `
+                        <div class="bg-white rounded-2xl shadow-lg border-2 border-transparent hover:border-[#FFD700] hover:-translate-y-1 transition-all overflow-hidden flex flex-col items-center text-center p-6 text-[#3E1C00]">
+                            <div class="w-16 h-16 bg-[#FFF8E7] rounded-full flex items-center justify-center text-3xl border-2 border-[#FF9933] mb-4 shadow-inner">
+                                ${data.icon || "🎯"}
+                            </div>
+                            <h3 class="font-bold text-xl text-[#8B0000] mb-2">${data.name}</h3>
+                            <div class="text-xs bg-orange-100 text-orange-800 px-2.5 py-1 rounded inline-block font-bold mb-3">
+                                प्रमुख: ${data.teacher}
+                            </div>
+                            <p class="text-sm opacity-80 mb-4 flex-1">${data.description}</p>
+                            
+                            <div class="w-full border-t border-gray-100 pt-3 mt-auto flex gap-2">
+                                <button onclick="viewClub('${doc.id}', '${data.name.replace(/'/g, "\\'")}', '${data.icon}')" class="flex-1 bg-[#FF9933] hover:bg-[#e68a2e] text-white py-2 rounded font-bold shadow transition-colors">समूह हेर्नुहोस् (View Club)</button>
+                                ${adminBtn}
+                            </div>
+                        </div>
+                    `;
+          });
+          grid.innerHTML = html;
+        } catch (err) {
+          console.error(err);
+          grid.innerHTML =
+            '<div class="col-span-full py-12 text-center text-red-500 font-bold">Error loading clubs.</div>';
+        }
+      }
+
+      // Add Club Logic
+      function openAddClubModal() {
+        document.getElementById("clubForm").reset();
+        document.getElementById("addClubModal").classList.remove("hidden");
+      }
+      function closeAddClubModal() {
+        document.getElementById("addClubModal").classList.add("hidden");
+      }
+
+      document
+        .getElementById("clubForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = document.getElementById("submitClubBtn");
+          btn.disabled = true;
+          btn.textContent = "सुरक्षित गरिँदै... (Saving)";
+
+          try {
+            await db.collection("clubs").add({
+              name: document.getElementById("clubName").value,
+              icon: document.getElementById("clubIcon").value,
+              teacher: document.getElementById("clubTeacher").value,
+              description: document.getElementById("clubDesc").value,
+              parsedCreatedAt: Date.now(),
+            });
+            showToast("समूह सफलतापूर्वक थपियो। (Club Added)");
+            closeAddClubModal();
+            loadClubs();
+          } catch (err) {
+            console.error(err);
+            alert("Error: " + err.message);
+          } finally {
+            btn.disabled = false;
+            btn.textContent = "सुरक्षित गर्नुहोस् (Save)";
+          }
+        });
+
+      async function deleteClub(id) {
+        if (
+          confirm(
+            "के तपाइँ यो समूह मेटाउन पक्का हुनुहुन्छ? (Delete this club?)",
+          )
+        ) {
+          try {
+            await db.collection("clubs").doc(id).delete();
+            showToast("समूह सारियो। (Club deleted)");
+            loadClubs();
+          } catch (e) {
+            console.error(e);
+            alert("Error " + e.message);
+          }
+        }
+      }
+
+      // View Club UI Logic (Tabs)
+      let currentViewClubId = null;
+
+      function viewClub(clubId, clubName, icon) {
+        currentViewClubId = clubId;
+        document.getElementById("enrollClubId").value = clubId;
+        document.getElementById("enrollClubName").value = clubName;
+        document.getElementById("membersModalTitle").textContent = clubName;
+        document.getElementById("clubModalIcon").textContent = icon || "🎯";
+
+        // Layout config based on role
+        if (currentUserRole === "admin" || currentUserRole === "teacher") {
+          document
+            .getElementById("adminPostActivity")
+            .classList.remove("hidden");
+          document
+            .getElementById("parentEnrollSection")
+            .classList.add("hidden");
+        } else {
+          document.getElementById("adminPostActivity").classList.add("hidden");
+          document
+            .getElementById("parentEnrollSection")
+            .classList.remove("hidden");
+        }
+
+        document.getElementById("enrollStudentName").value = "";
+        document.getElementById("activityText").value = "";
+
+        switchTab("activities"); // Default tab
+        document.getElementById("membersModal").classList.remove("hidden");
+      }
+
+      function switchTab(tabName) {
+        const tabs = ["activities", "members"];
+        tabs.forEach((t) => {
+          const btn = document.getElementById("tab-" + t);
+          const content = document.getElementById(t + "TabContent");
+          if (t === tabName) {
+            btn.classList.add(
+              "text-[#8B0000]",
+              "border-[#FF9933]",
+              "bg-orange-50",
+            );
+            btn.classList.remove(
+              "text-gray-500",
+              "border-transparent",
+              "hover:bg-gray-50",
+            );
+            content.classList.remove("hidden");
+          } else {
+            btn.classList.remove(
+              "text-[#8B0000]",
+              "border-[#FF9933]",
+              "bg-orange-50",
+            );
+            btn.classList.add(
+              "text-gray-500",
+              "border-transparent",
+              "hover:bg-gray-50",
+            );
+            content.classList.add("hidden");
+          }
+        });
+
+        if (tabName === "members") loadMembers(currentViewClubId);
+        else if (tabName === "activities") loadActivities(currentViewClubId);
+      }
+
+      async function postActivity() {
+        const text = document.getElementById("activityText").value.trim();
+        if (!text) return;
+
+        try {
+          await db.collection("club_activities").add({
+            clubId: currentViewClubId,
+            text: text,
+            postedBy: currentUserEmail,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+          document.getElementById("activityText").value = "";
+          showToast("सूचना पोस्ट भयो। (Notice Posted)");
+          loadActivities(currentViewClubId);
+        } catch (error) {
+          console.error(error);
+          alert("Error: " + error.message);
+        }
+      }
+
+      async function loadActivities(clubId) {
+        const list = document.getElementById("activitiesList");
+        list.innerHTML =
+          '<div class="text-center py-6 opacity-60 text-sm">लोड हुँदैछ...</div>';
+
+        try {
+          const snap = await db
+            .collection("club_activities")
+            .where("clubId", "==", clubId)
+            .orderBy("createdAt", "desc")
+            .get();
+
+          if (snap.empty) {
+            list.innerHTML =
+              '<div class="text-center py-6 bg-white rounded-lg border border-gray-100 text-sm opacity-60">कुनै सूचना छैन (No notices yet)</div>';
+            return;
+          }
+
+          let html = "";
+          snap.forEach((doc) => {
+            const data = doc.data();
+            const dateStr = data.createdAt
+              ? new Date(data.createdAt.seconds * 1000).toLocaleString()
+              : "भर्खरै (Just now)";
+            html += `
+                        <div class="bg-white p-4 rounded-xl shadow border border-orange-100">
+                            <p class="text-[#3E1C00] whitespace-pre-wrap">${data.text}</p>
+                            <div class="mt-3 text-xs opacity-60 flex justify-between border-t pt-2">
+                                <span class="font-bold">तर्फबाट: <span class="text-[#8B0000]">${data.postedBy}</span></span>
+                                <span>${dateStr}</span>
+                            </div>
+                        </div>
+                    `;
+          });
+          list.innerHTML = html;
+        } catch (error) {
+          console.error(error);
+          // Fallback without index
+          list.innerHTML =
+            '<div class="text-center py-6 text-red-500">Error loading activities.</div>';
+        }
+      }
+
+      // Parent Enroll Logic
+      async function enrollStudent() {
+        const clubId = document.getElementById("enrollClubId").value;
+        const clubName = document.getElementById("enrollClubName").value;
+        const studentName = document.getElementById("enrollStudentName").value;
+
+        if (!studentName.trim()) {
+          alert("Please enter student name.");
+          return;
+        }
+
+        try {
+          await db.collection("club_members").add({
+            clubId,
+            clubName,
+            studentName,
+            parentEmail: currentUserEmail,
+            enrolledAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+          showToast("सफलतापूर्वक भर्ना हुनुभयो। (Registered successfully)");
+          document.getElementById("enrollStudentName").value = "";
+          loadMembers(clubId); // reload list
+        } catch (e) {
+          console.error(e);
+          alert("Error: " + e.message);
+        }
+      }
+
+      // View Members Logic
+      async function loadMembers(clubId) {
+        const list = document.getElementById("membersList");
+        list.innerHTML =
+          '<li class="text-center py-4 text-sm opacity-60">लोड हुँदैछ...</li>';
+
+        try {
+          const snap = await db
+            .collection("club_members")
+            .where("clubId", "==", clubId)
+            .get();
+          if (snap.empty) {
+            list.innerHTML =
+              '<li class="p-6 bg-white rounded-lg text-center text-sm opacity-70 border border-gray-100">कोही पनि भर्ना भएका छैनन् (No members enrolled yet)</li>';
+            return;
+          }
+
+          let html = "";
+          snap.forEach((doc) => {
+            const data = doc.data();
+            let removeBtn = "";
+            if (currentUserRole === "admin" || currentUserRole === "teacher") {
+              removeBtn = `<button onclick="removeMember('${doc.id}', '${clubId}')" class="text-red-500 hover:bg-red-50 p-2 rounded transition-colors" title="हटाउनुहोस्"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg></button>`;
+            }
+            html += `
+                        <li class="flex justify-between items-center p-3 bg-white border border-gray-100 shadow-sm rounded-lg">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-800 flex items-center justify-center font-bold text-xs">${data.studentName.charAt(0)}</div>
+                                <div>
+                                    <div class="font-bold text-[#3E1C00] text-sm">${data.studentName}</div>
+                                    <div class="text-xs text-gray-500">अभिभावक: ${data.parentEmail}</div>
+                                </div>
+                            </div>
+                            ${removeBtn}
+                        </li>
+                    `;
+          });
+          list.innerHTML = html;
+        } catch (e) {
+          console.error(e);
+          list.innerHTML =
+            '<li class="text-red-500 p-3 text-center">Error loading members.</li>';
+        }
+      }
+
+      async function removeMember(memId, clubId) {
+        if (
+          confirm(
+            "विद्यार्थीलाई यस समूहबाट हटाउनु पक्का हुनुहुन्छ? (Remove this student?)",
+          )
+        ) {
+          try {
+            await db.collection("club_members").doc(memId).delete();
+            loadMembers(clubId);
+            showToast("Member removed.");
+          } catch (e) {
+            alert("Error: " + e.message);
+          }
+        }
+      }
+
+      function closeMembersModal() {
+        document.getElementById("membersModal").classList.add("hidden");
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ne">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>श्री कृष्ण द्वैपायन गुरुकुल - अभिभावक पोर्टल (Parent Portal)</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Serif+Devanagari:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Firebase Compat -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      body {
+        font-family: "Noto Serif Devanagari", serif;
+      }
+      .bg-pattern {
+        background-color: #fff8e7;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FF9933' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+      .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px -5px rgba(255, 153, 51, 0.4);
+        border-color: #ff9933;
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#FFF8E7] text-[#3E1C00] bg-pattern min-h-screen flex flex-col"
+  >
+    <!-- Header -->
+    <nav
+      class="bg-gradient-to-r from-[#8B0000] to-[#5a0000] text-white shadow-xl px-6 py-4 flex justify-between items-center border-b-4 border-[#FFD700] sticky top-0 z-50"
+    >
+      <div class="flex items-center gap-4">
+        <div
+          class="w-12 h-12 bg-[#FFF8E7] rounded-full flex items-center justify-center border-2 border-[#FFD700] text-[#8B0000] font-black text-2xl shadow-inner"
+        >
+          ॐ
+        </div>
+        <div>
+          <h1
+            class="text-xl md:text-2xl font-black tracking-wide"
+            style="text-shadow: 1px 1px 0px #ff9933"
+          >
+            अभिभावक पोर्टल
+          </h1>
+          <p class="text-xs text-[#FFD700] font-bold">
+            Parent & Student Dashboard
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-4">
+        <div class="hidden md:block text-right">
+          <p class="font-bold text-sm" id="userEmailDisplay">Loading...</p>
+          <p class="text-xs text-[#FFD700]">अभिभावक / विद्यार्थी</p>
+        </div>
+        <button
+          onclick="logout()"
+          class="px-4 py-2 bg-white/10 hover:bg-[#FFD700] hover:text-[#8B0000] rounded-lg border border-white/30 transition-all text-sm font-bold shadow-md"
+        >
+          लगआउट (Logout)
+        </button>
+      </div>
+    </nav>
+
+    <!-- Main Dashboard -->
+    <main class="flex-1 max-w-7xl mx-auto w-full p-6 lg:p-10 z-10">
+      <!-- Welcome Banner -->
+      <div
+        class="bg-gradient-to-r from-[#FF9933] to-[#FF8C00] rounded-2xl p-8 mb-10 text-white shadow-2xl relative overflow-hidden border-2 border-[#FFD700]"
+      >
+        <div
+          class="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2"
+        ></div>
+        <div class="relative z-10">
+          <h2
+            class="text-3xl lg:text-4xl font-black mb-2"
+            style="text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2)"
+          >
+            शुभ सन्ध्या (Good Evening),
+            <span id="welcomeName">Student/Parent</span>!
+          </h2>
+          <p class="text-lg opacity-90 font-medium">
+            गुरुकुलको अनलाइन माध्यममा तपाईंलाई स्वागत छ। कृपया तलका सुविधाहरू
+            प्रयोग गर्नुहोस्।
+          </p>
+        </div>
+      </div>
+
+      <!-- Dashboard Grid -->
+      <div
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
+        <a
+          href="profile.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            👤
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            प्रोफाइल (Profile)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            तपाईंको व्यक्तिगत विवरण
+          </p>
+        </a>
+
+        <a
+          href="notices.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            📢
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            सूचना (Notifications)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">सूचना र पाठ्यक्रम PDF</p>
+        </a>
+
+        <a
+          href="calendar.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-teal-50 text-teal-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            📆
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            क्यालेन्डर (Calendar)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            शैक्षिक क्यालेन्डर र बिदाहरू
+          </p>
+        </a>
+
+        <!-- Cards -->
+        <a
+          href="attendance.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            📅
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            हाजिरी (Attendance)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            दैनिक उपस्थिति हेर्नुहोस्
+          </p>
+        </a>
+
+        <a
+          href="marks.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            📊
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            परीक्षा नतिजा (Marks)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            विद्यार्थीको प्राप्ताङ्क विवरण
+          </p>
+        </a>
+
+        <a
+          href="notes.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            📝
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            नोट / गृहकार्य (Notes)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            अध्ययन सामग्री र कार्यहरू
+          </p>
+        </a>
+
+        <a
+          href="leave.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            ✉️
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            बिदा निवेदन (Leave)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            बिदाको लागि आवेदन दिनुहोस्
+          </p>
+        </a>
+
+        <a
+          href="complaints.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-pink-50 text-pink-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            💬
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            गुनासो / सुझाव (Feedback)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            समस्या वा सल्लाह पठाउनुहोस्
+          </p>
+        </a>
+
+        <a
+          href="events.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            📸
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            ग्यालरी (Events)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">कार्यक्रम र फोटोहरू</p>
+        </a>
+
+        <a
+          href="reading.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            📚
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            स्वाध्याय कक्ष (E-Library)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            वेद र अन्य ग्रन्थहरूको सङ्कलन
+          </p>
+        </a>
+
+        <a
+          href="quiz.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-yellow-50 text-yellow-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            🎯
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            हाजिरीजवाफ (Quiz)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            वैदिक ज्ञान परीक्षण गर्नुहोस्
+          </p>
+        </a>
+
+        <a
+          href="clubs.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            🎭
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">शाखाहरू (Clubs)</h3>
+          <p class="text-sm text-gray-500 font-medium">
+            विभिन्न समूहमा आबद्ध हुनुहोस्
+          </p>
+        </a>
+
+        <a
+          href="wall-of-fame.html"
+          class="bg-white rounded-2xl p-6 shadow-lg border-2 border-transparent card-hover transition-all flex flex-col items-center text-center group cursor-pointer relative overflow-hidden"
+        >
+          <div
+            class="w-16 h-16 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-[#8B0000] group-hover:text-white transition-colors"
+          >
+            🏆
+          </div>
+          <h3 class="text-xl font-bold text-[#8B0000] mb-2">
+            कीर्ति स्तम्भ (Wall of Fame)
+          </h3>
+          <p class="text-sm text-gray-500 font-medium">
+            उत्कृष्ट विद्यार्थीहरूको सूची
+          </p>
+        </a>
+      </div>
+    </main>
+
+    <script>
+      const firebaseConfig = {
+        projectId: "admin-8f9e1",
+        appId: "1:614883937488:web:52f84870e218c9c05722d5",
+        apiKey: "AIzaSyAfSc9Lqpg2b3dPWS4ibG88y_bL5LXeoQw",
+        authDomain: "admin-8f9e1.firebaseapp.com",
+        storageBucket: "admin-8f9e1.firebasestorage.app",
+        messagingSenderId: "614883937488",
+        measurementId: "",
+      };
+
+      if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      const auth = firebase.auth();
+
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          const role = localStorage.getItem("gurukul_userRole");
+          if (role !== "parent" && role !== "student") {
+            // Redirect non-parents if they somehow end up here
+            if (role === "admin" || role === "teacher") {
+              window.location.href = "parent-portal.html";
+            }
+          }
+          const name = localStorage.getItem("gurukul_userName");
+          const phoneOrEmail = localStorage.getItem("gurukul_userPhone");
+          document.getElementById("userEmailDisplay").textContent =
+            phoneOrEmail || user.email;
+          if (name) {
+            document.getElementById("welcomeName").textContent = name;
+          }
+        } else {
+          window.location.href = "index.html";
+        }
+      });
+
+      function logout() {
+        auth
+          .signOut()
+          .then(() => {
+            localStorage.removeItem("gurukul_userRole");
+            window.location.href = "index.html";
+          })
+          .catch((error) => {
+            console.error("Logout Error:", error);
+          });
+      }
+    </script>
+  </body>
+</html>
